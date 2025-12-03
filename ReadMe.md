@@ -1,4 +1,4 @@
-# 🛒 Ecommerce-Frontend
+# 🛒 E-Commerce-Frontend
 
 ## 🎯 Objetivo del Repositorio
 
