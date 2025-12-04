@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { register } from "@/services/authService";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -46,11 +47,18 @@ export default function RegisterPage() {
     }
 
     try {
-      // Aquí va la lógica de registro
-      console.log("Register:", formData);
+      const response = await register(formData);
+      console.log("Registro exitoso:", response);
+      // Aquí puedes redirigir al usuario a la página de inicio o a confirmación de email
+      // navigate("/");
     } catch (err) {
-      setError("Error al crear la cuenta");
-      console.error("Error:", err);
+      const serverMessage = err?.response?.data?.message;
+      if (serverMessage) {
+        setError(serverMessage);
+      } else {
+        setError("Error al crear la cuenta. Intenta más tarde.");
+      }
+      console.error("Error al registrar:", err);
     } finally {
       setIsLoading(false);
     }

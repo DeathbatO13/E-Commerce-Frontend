@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { login } from "@/services/authService";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -25,10 +26,18 @@ export default function LoginPage() {
       return;
     }
     try {
-      // Aquí va la lógica de login
-      console.log("Login:", { email, password });
+      const response = await login(email, password);
+      console.log("Login exitoso:", response);
+      // Aquí puedes redirigir al usuario a la página de inicio, guardar contexto, etc.
+      // navigate("/");
     } catch (error) {
-      console.error("Error:", error);
+      const serverMessage = error?.response?.data?.message;
+      if (serverMessage) {
+        setError(serverMessage);
+      } else {
+        setError("Error al iniciar sesión. Verifica tus credenciales.");
+      }
+      console.error("Error al login:", error);
     } finally {
       setIsLoading(false);
     }

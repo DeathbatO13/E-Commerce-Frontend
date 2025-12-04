@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import { recoverPassword } from "@/services/authService";
 
 export default function RecoverPassword() {
   const [email, setEmail] = useState("");
@@ -22,26 +22,19 @@ export default function RecoverPassword() {
     }
 
     try {
-      const resp = await axios.post(
-        "http://localhost:8080/auth/recover",
-        { email },
-        { headers: { "Content-Type": "application/json" } }
-      );
-
-      // Si el backend devuelve un mensaje, úsalo; si no, usa un mensaje por defecto
-      const message = resp?.data?.message ||
+      const response = await recoverPassword(email);
+      const message = response?.message ||
         "Si existe una cuenta con ese email, se ha enviado un enlace de recuperación. Revisa tu bandeja de entrada.";
       setSuccess(message);
       setEmail("");
     } catch (err) {
-      // Manejo de errores: respuesta del servidor o error de red
       const serverMessage = err?.response?.data?.message;
       if (serverMessage) {
         setError(serverMessage);
       } else {
-        setError("Error al enviar el correo. Verifica que el servidor esté disponible y permite CORS.");
+        setError("Error al enviar el correo. Verifica que el servidor esté disponible.");
       }
-      console.error(err);
+      console.error("Error al recuperar contraseña:", err);
     } finally {
       setIsLoading(false);
     }
