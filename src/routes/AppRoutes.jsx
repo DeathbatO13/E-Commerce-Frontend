@@ -1,26 +1,46 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+
+import LoginLayout from "@/layouts/LoginLayout";
+
 import HomePage from "@/pages/HomePage";
 import LoginPage from "@/pages/LoginPage";
+import RegisterPage from "@/pages/RegisterPage";
 import ProductListPage from "@/pages/ProductListPage";
 import ProductDetailPage from "@/pages/ProductDetailPage";
 import CartPage from "@/pages/CartPage";
 import NotFoundPage from "@/pages/NotFoundPage";
-import RegisterPage from "../pages/RegisterPage";
 
-function AppRoutes() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/products" element={<ProductListPage />} />
-        <Route path="/products/:id" element={<ProductDetailPage />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </BrowserRouter>
-  );
+const router = createBrowserRouter([
+  {
+    path: "/login",
+    element: <LoginLayout />,
+    children: [
+      { index: true, element: <LoginPage /> },
+      { path: "register", element: <RegisterPage /> }
+    ],
+  },
+  {
+    path: "/",
+    element: <HomePage />,
+  },
+  {
+    path: "/products",
+    element: <ProductListPage />,
+  },
+  {
+    path: "/products/:id",
+    element: <ProductDetailPage />,
+  },
+  {
+    path: "/cart",
+    element: <CartPage />,
+  },
+  {
+    path: "*",
+    element: <NotFoundPage />,
+  },
+]);
+
+export default function AppRoutes() {
+  return <RouterProvider router={router} />;
 }
-
-export default AppRoutes;
