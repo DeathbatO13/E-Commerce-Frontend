@@ -1,14 +1,29 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
+    // Validación mínima del email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Por favor ingresa un correo electrónico válido.");
+      setIsLoading(false);
+      return;
+    }
+    if (password.length < 8) {
+      setError("La contraseña debe tener al menos 8 caracteres.");
+      setIsLoading(false);
+      return;
+    }
     try {
       // Aquí va la lógica de login
       console.log("Login:", { email, password });
@@ -24,6 +39,12 @@ export default function LoginPage() {
       <h1 className="text-[#0d141b] dark:text-white tracking-light text-[32px] font-bold leading-tight text-left pb-3">
         Iniciar Sesión
       </h1>
+
+      {error && (
+        <div className="mb-4 p-3 rounded-lg bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-100 text-sm">
+          {error}
+        </div>
+      )}
 
       <form className="space-y-5" onSubmit={handleSubmit}>
         <label className="flex flex-col min-w-40 flex-1">
@@ -64,12 +85,14 @@ export default function LoginPage() {
           </div>
         </label>
 
-        <a
-          className="block text-primary text-sm font-medium leading-normal underline text-right hover:text-primary/80"
-          href="#"
-        >
-          ¿Olvidaste tu contraseña?
-        </a>
+        <div className="flex justify-end">
+          <Link
+            className="block text-primary text-sm font-medium leading-normal underline hover:text-primary/80"
+            to="/login/recover"
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </div>
 
         <button
           className="flex w-full items-center justify-center rounded-lg bg-primary h-14 px-4 py-2 text-base font-semibold text-white transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"

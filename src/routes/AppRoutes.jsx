@@ -5,6 +5,7 @@ import LoginLayout from "@/layouts/LoginLayout";
 import HomePage from "@/pages/HomePage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
+import RecoverPassword from "@/pages/RecoverPassword";
 import ProductListPage from "@/pages/ProductListPage";
 import ProductDetailPage from "@/pages/ProductDetailPage";
 import CartPage from "@/pages/CartPage";
@@ -16,11 +17,12 @@ const router = createBrowserRouter([
     element: <LoginLayout />,
     children: [
       { index: true, element: <LoginPage /> },
-      { path: "register", element: <RegisterPage /> }
+      { path: "register", element: <RegisterPage /> },
+      { path: "recover", element: <RecoverPassword /> }
     ],
   },
   {
-    path: "/",
+    path: "/home",
     element: <HomePage />,
   },
   {

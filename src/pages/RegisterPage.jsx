@@ -26,6 +26,19 @@ export default function RegisterPage() {
     setIsLoading(true);
     setError("");
 
+    // Validaciones mínimas: email válido, contraseña mínima y confirmación
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError("Por favor ingresa un correo electrónico válido.");
+      setIsLoading(false);
+      return;
+    }
+    if (formData.password.length < 8) {
+      setError("La contraseña debe tener al menos 8 caracteres.");
+      setIsLoading(false);
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError("Las contraseñas no coinciden");
       setIsLoading(false);
