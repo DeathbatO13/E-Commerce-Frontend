@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
   // ------------------------------------------
   function login(email, password) {
     // Validación falsa para prueba
-    if (email === "test@test.com" && password === "123456") {
+    if (email === "test@test.com" && password === "12345678") {
       const userData = { email };
       localStorage.setItem("user", JSON.stringify(userData));
       setUser(userData);
