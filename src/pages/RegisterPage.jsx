@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { register } from "@/services/authService";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -12,6 +13,8 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { register } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,9 +51,12 @@ export default function RegisterPage() {
 
     try {
       const response = await register(formData);
-      console.log("Registro exitoso:", response);
-      // Aquí puedes redirigir al usuario a la página de inicio o a confirmación de email
-      // navigate("/");
+      // Persist token/user if returned by the context/service
+      const token = response?.token || response?.data?.token;
+      const user = response?.user || response?.data?.user;
+      if (token) localStorage.setItem("token", token);
+      if (user) localStorage.setItem("user", JSON.stringify(user));
+      navigate("/");
     } catch (err) {
       const serverMessage = err?.response?.data?.message;
       if (serverMessage) {

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { login } from "@/services/authService";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -8,6 +8,8 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,9 +29,12 @@ export default function LoginPage() {
     }
     try {
       const response = await login(email, password);
-      console.log("Login exitoso:", response);
-      // Aquí puedes redirigir al usuario a la página de inicio, guardar contexto, etc.
-      // navigate("/");
+      // Persist token/user returned by context/service
+      const token = response?.token || response?.data?.token;
+      const user = response?.user || response?.data?.user;
+      if (token) localStorage.setItem("token", token);
+      if (user) localStorage.setItem("user", JSON.stringify(user));
+      navigate("/");
     } catch (error) {
       const serverMessage = error?.response?.data?.message;
       if (serverMessage) {
