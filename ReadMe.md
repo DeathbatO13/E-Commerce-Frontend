@@ -137,14 +137,14 @@ Cada microservicio:
 El proyecto se divide en dos repositorios principales:
 
 ### Backend
-Repositorio: `ecommerce-backend`
+Repositorio: `E-commerce-backend`
 
 - Contiene todos los microservicios
 - Enfoque monorepo
 - Despliegue independiente por servicio
 
 ### Frontend
-Repositorio: `ecommerce-frontend`
+Repositorio: `E-commerce-frontend`
 
 - Contiene el Shell App y los microfrontends
 - Implementado con React y Module Federation
@@ -170,4 +170,4 @@ Este MVP busca demostrar:
 
 ## Estado del Proyecto
 
-🚧 En fase de definición del MVP
+🚧 En desarrollo
