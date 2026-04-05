@@ -1,0 +1,21 @@
+{
+  "name": "e-commerce-frontend",
+  "private": true,
+  "workspaces": [
+    "shell",
+    "auth-app",
+    "catalog-app",
+    "cart-app",
+    "orders-app",
+    "admin-app"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "preview": "turbo run preview",
+    "lint": "turbo run lint"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.4"
+  }
+}
