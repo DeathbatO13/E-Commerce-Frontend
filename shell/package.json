@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 5000 --strictPort",
+    "dev:mf": "concurrently \"vite build --watch\" \"vite preview --port 5000 --strictPort\"",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview --port 5000 --strictPort"

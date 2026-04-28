@@ -12,7 +12,7 @@ function LoadingFallback() {
   return (
     <div className="flex items-center justify-center h-64">
       <div className="flex flex-col items-center gap-3">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600" />
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500" />
         <p className="text-sm text-gray-400">Cargando módulo…</p>
       </div>
     </div>
@@ -21,27 +21,25 @@ function LoadingFallback() {
 
 function AppRouter() {
   return (
-    <MainLayout>
-      <Suspense fallback={<LoadingFallback />}>
-        <Routes>
-          {/* Auth */}
-          <Route path="/login"    element={<AuthApp />} />
-          <Route path="/register" element={<AuthApp />} />
+    <Suspense fallback={<LoadingFallback />}>
+      <Routes>
+        {/* ── Auth: sin MainLayout (pantalla completa propia) ── */}
+        <Route path="/login"    element={<AuthApp />} />
+        <Route path="/register" element={<AuthApp />} />
 
-          {/* Cart */}
-          <Route path="/cart" element={<CartApp />} />
-
-          {/* Orders */}
-          <Route path="/orders/*" element={<OrdersApp />} />
-
-          {/* Admin */}
-          <Route path="/admin/*" element={<AdminApp />} />
-
-          {/* Catalog — catch-all (debe ir al final) */}
-          <Route path="/*" element={<CatalogApp />} />
-        </Routes>
-      </Suspense>
-    </MainLayout>
+        {/* ── Resto: con MainLayout (header + footer globales) ── */}
+        <Route path="/*" element={
+          <MainLayout>
+            <Routes>
+              <Route path="/cart"      element={<CartApp />} />
+              <Route path="/orders/*"  element={<OrdersApp />} />
+              <Route path="/admin/*"   element={<AdminApp />} />
+              <Route path="/*"         element={<CatalogApp />} />
+            </Routes>
+          </MainLayout>
+        } />
+      </Routes>
+    </Suspense>
   );
 }
 
