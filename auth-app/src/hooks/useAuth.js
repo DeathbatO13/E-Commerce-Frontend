@@ -30,11 +30,11 @@ export function useRegister({ onSuccess } = {}) {
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState(null)
 
-  async function handleRegister({ fullName, email, password }) {
+  async function handleRegister({ fullname, email, password }) {
     setLoading(true)
     setError(null)
     try {
-      await register({ fullName, email, password })
+      await register({ fullname, email, password })
       onSuccess?.()
     } catch (err) {
       setError(err.message)
