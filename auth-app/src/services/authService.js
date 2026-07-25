@@ -23,24 +23,30 @@ export async function login({ email, password }) {
 
 /**
  * POST /auth/register
- * @param {{ fullName: string, email: string, password: string }} payload
+ * @param {{ fullname: string, email: string, password: string }} payload
  */
-export async function register({ fullName, email, password }) {
+export async function register({ email, password, fullname }) {
   const res = await fetch(`${AUTH_BASE_URL}/auth/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ fullName, email, password }),
-  })
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      password,
+      fullname,
+    }),
+  });
 
   if (!res.ok) {
-    const data = await res.json().catch(() => ({}))
-    throw new Error(data.message || 'Error al crear la cuenta')
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.message || "Error al crear la cuenta");
   }
 }
 
 // ── Token helpers ──────────────────────────────────────────────────────────
 
-const TOKEN_KEY = 'ec_access_token'
+const TOKEN_KEY = 'mySuperSecretKey12345678901234567890123456789012'
 
 export function saveToken(accessToken) {
   localStorage.setItem(TOKEN_KEY, accessToken)

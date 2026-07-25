@@ -12,7 +12,7 @@ function RegisterPage() {
   const navigate = useNavigate()
 
   const [form, setForm] = useState({
-    fullName:        '',
+    fullname:        '',
     email:           '',
     password:        '',
     confirmPassword: '',
@@ -47,7 +47,7 @@ function RegisterPage() {
     }
 
     handleRegister({
-      fullName: form.fullName,
+      fullname: form.fullname,
       email:    form.email,
       password: form.password,
     })
@@ -67,8 +67,8 @@ function RegisterPage() {
         type="text"
         autoComplete="name"
         placeholder="Juan Pérez"
-        value={form.fullName}
-        onChange={updateField('fullName')}
+        value={form.fullname}
+        onChange={updateField('fullname')}
         required
       />
 
