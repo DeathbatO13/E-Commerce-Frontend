@@ -1,3 +1,172 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+
+  /* ═══════════════════════════════════════════
+     BUTTONS
+  ═══════════════════════════════════════════ */
+
+  .btn {
+    @apply w-full font-semibold py-2.5 rounded-lg transition-all duration-150 text-sm cursor-pointer
+           flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white;
+  }
+
+  .btn-outline {
+    @apply bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100;
+  }
+
+  /* ═══════════════════════════════════════════
+     FORM ELEMENTS
+  ═══════════════════════════════════════════ */
+
+  .form-field {
+    @apply flex flex-col gap-1.5;
+  }
+
+  .form-label {
+    @apply text-sm font-medium text-gray-700;
+  }
+
+  .form-input {
+    @apply w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm
+           outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition;
+  }
+
+  .form-input-icon {
+    @apply form-input pr-11;
+  }
+
+  .input-icon-btn {
+    @apply absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition;
+  }
+
+  /* ═══════════════════════════════════════════
+     ALERTS
+  ═══════════════════════════════════════════ */
+
+  .alert {
+    @apply text-sm rounded-lg px-4 py-3 border;
+  }
+
+  .alert-error {
+    @apply alert bg-red-50 border-red-200 text-red-700;
+  }
+
+  .alert-success {
+    @apply alert bg-green-50 border-green-200 text-green-700;
+  }
+
+  /* ═══════════════════════════════════════════
+     DIVIDER
+  ═══════════════════════════════════════════ */
+
+  .divider {
+    @apply flex items-center gap-3;
+  }
+
+  .divider-line {
+    @apply flex-1 border-gray-200;
+  }
+
+  .divider-label {
+    @apply text-xs text-gray-400;
+  }
+
+  /* ═══════════════════════════════════════════
+     LINKS
+  ═══════════════════════════════════════════ */
+
+  .link {
+    @apply text-blue-600 hover:underline cursor-pointer;
+  }
+
+  .link-sm {
+    @apply link text-xs;
+  }
+
+  /* ═══════════════════════════════════════════
+     AUTH LAYOUT — Página
+  ═══════════════════════════════════════════ */
+
+  .auth-page {
+    @apply min-h-screen flex items-center justify-center bg-gray-100 p-4;
+  }
+
+  .auth-card {
+    @apply w-full max-w-3xl flex rounded-2xl overflow-hidden shadow-2xl;
+  }
+
+  /* ═══════════════════════════════════════════
+     AUTH LAYOUT — Panel izquierdo (azul)
+  ═══════════════════════════════════════════ */
+
+  .auth-panel-left {
+    @apply hidden md:flex flex-col justify-between w-5/12 bg-blue-500 text-white p-10;
+  }
+
+  .auth-logo {
+    @apply flex items-center gap-2 font-semibold text-lg;
+  }
+
+  .auth-panel-heading {
+    @apply text-3xl font-bold leading-snug mb-3;
+  }
+
+  .auth-panel-body {
+    @apply text-blue-100 text-sm leading-relaxed;
+  }
+
+  .auth-panel-footer {
+    @apply text-xs text-blue-200;
+  }
+
+  /* ═══════════════════════════════════════════
+     AUTH LAYOUT — Panel derecho (blanco)
+  ═══════════════════════════════════════════ */
+
+  .auth-panel-right {
+    @apply flex-1 bg-white p-10 flex flex-col;
+  }
+
+  /* ═══════════════════════════════════════════
+     AUTH TABS
+  ═══════════════════════════════════════════ */
+
+  .auth-tabs {
+    @apply flex bg-gray-100 rounded-lg p-1 mb-8 self-center w-full max-w-xs;
+  }
+
+  .auth-tab {
+    @apply flex-1 py-2 rounded-md text-sm font-medium transition-all;
+  }
+
+  .auth-tab-active {
+    @apply bg-white shadow text-gray-800;
+  }
+
+  .auth-tab-inactive {
+    @apply text-gray-500 hover:text-gray-700;
+  }
+
+  /* ═══════════════════════════════════════════
+     AUTH FORM
+  ═══════════════════════════════════════════ */
+
+  .auth-form {
+    @apply flex flex-col gap-5;
+  }
+
+  .auth-title {
+    @apply text-2xl font-bold text-gray-800;
+  }
+
+  .auth-terms {
+    @apply text-xs text-center text-gray-400;
+  }
+}
