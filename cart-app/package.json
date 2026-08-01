@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite build --watch\" \"vite preview --port 5003 --strictPort\"",
+    "dev": "concurrently \"vite build --watch\" \"vite preview --host 127.0.0.1 --port 5003 --strictPort\"",
     "build": "vite build",
-    "preview": "vite preview --port 5003 --strictPort",
+    "preview": "vite preview --host 127.0.0.1 --port 5003 --strictPort",
     "lint": "eslint ."
   },
   "dependencies": {

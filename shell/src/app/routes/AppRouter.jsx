@@ -1,12 +1,21 @@
 import { Routes, Route, Suspense, lazy } from "react-router-dom";
 import MainLayout from "../layout/MainLayout";
+import CatalogPage from "../../../../catalog-app/src/pages/CatalogPage";
 
 // Microfrontends cargados dinámicamente vía Module Federation
 const AuthApp    = lazy(() => import('authApp/AuthApp'));
-const CatalogApp = lazy(() => import('catalogApp/CatalogApp'));
 const CartApp    = lazy(() => import('cartApp/CartApp'));
 const OrdersApp  = lazy(() => import('ordersApp/OrdersApp'));
 const AdminApp   = lazy(() => import('adminApp/AdminApp'));
+
+function HomeFallback() {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+      <h1 className="text-2xl font-bold text-slate-900">Bienvenido a ReactStore</h1>
+      <p className="mt-2 text-sm text-slate-600">El catálogo remoto se cargará cuando el entorno de preview esté listo.</p>
+    </div>
+  );
+}
 
 /**
  * Componente LoadingFallback — Pantalla de carga genérica.
@@ -50,7 +59,8 @@ function AppRouter() {
               <Route path="/cart"      element={<CartApp />} />
               <Route path="/orders/*"  element={<OrdersApp />} />
               <Route path="/admin/*"   element={<AdminApp />} />
-              <Route path="/*"         element={<CatalogApp />} />
+              <Route path="/"          element={<HomeFallback />} />
+              <Route path="/*"         element={<CatalogPage />} />
             </Routes>
           </MainLayout>
         } />

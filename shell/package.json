@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5000 --strictPort",
-    "dev:mf": "concurrently \"vite build --watch\" \"vite preview --port 5000 --strictPort\"",
+    "dev": "vite --host 127.0.0.1 --port 5000 --strictPort",
+    "dev:mf": "concurrently \"vite build --watch\" \"vite preview --host 127.0.0.1 --port 5000 --strictPort\"",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview --port 5000 --strictPort"
+    "preview": "vite preview --host 127.0.0.1 --port 5000 --strictPort"
   },
   "dependencies": {
     "react": "^19.2.0",
@@ -22,7 +22,6 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
     "autoprefixer": "^10.4.24",
-    "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",

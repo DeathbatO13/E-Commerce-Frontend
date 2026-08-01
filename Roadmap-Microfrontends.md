@@ -41,13 +41,13 @@ Este microfrontend manejará el registro, inicio de sesión y almacenamiento seg
 Microfrontend de acceso público. Responsable de mostrar productos, categorías y vista detallada.
 
 ### Tareas (Catalog App):
-- [ ] Inicializar el microfrontend `catalog-app`.
-- [ ] **Listado de Categorías**:
-  - Integrar `GET /categories`.
-  - Crear componente de filtros laterales o superiores de categorías.
-- [ ] **Listado de Productos (`/`)**:
-  - Integrar `GET /products` (con soporte para filtrar por `categoryId`).
-  - Construir grid de tarjetas de producto mostrando información básica y precio.
+- [x] Inicializar el microfrontend `catalog-app`.
+- [x] **Listado de Categorías**:
+  - [x] Integrar `GET /categories`.
+  - [x] Crear componente de filtros laterales o superiores de categorías.
+- [x] **Listado de Productos (`/`)**:
+  - [x] Integrar `GET /products` (con soporte para filtrar por `categoryId`).
+  - [x] Construir grid de tarjetas de producto mostrando información básica y precio.
 - [ ] **Detalle del Producto (`/products/{id}`)**:
   - Integrar `GET /products/{id}`.
   - Botón interactivo "Agregar al Carrito" (Debe emitir un evento que la `cart-app` o el Shell escuchen para actualizar el estado).
