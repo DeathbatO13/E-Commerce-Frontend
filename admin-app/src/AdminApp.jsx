@@ -1,7 +1,12 @@
 /**
- * AdminApp — Microfrontend de Administración
+ * Componente AdminApp — Microfrontend de Administración.
+ * Propósito: Renderizar el panel de administración central del sistema.
  * Expuesto vía Module Federation como: adminApp/AdminApp
  * Puerto: 5005
+ * 
+ * @returns {JSX.Element} Interfaz del panel de administración
+ * @throws {None}
+ * @sideeffects Ninguno
  */
 function AdminApp() {
   return (

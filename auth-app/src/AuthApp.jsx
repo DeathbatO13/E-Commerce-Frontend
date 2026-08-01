@@ -5,11 +5,13 @@ import RegisterPage from './pages/RegisterPage'
 import './index.css'
 
 /**
- * AuthApp — Microfrontend de Autenticación
- * Expuesto vía Module Federation como: authApp/AuthApp
+ * Componente AuthApp — Punto de entrada del Microfrontend de Autenticación.
+ * Propósito: Renderizar la ruta correcta (Login o Registro) dependiendo del URL actual montándolo dentro del AuthLayout.
+ * Expuesto vía Module Federation como: authApp/AuthApp.
  *
- * El Shell enruta /login y /register a este componente.
- * Usamos useLocation() para determinar qué tab/página mostrar.
+ * @returns {JSX.Element} La página envuelta en su Layout de autenticación
+ * @throws {None}
+ * @sideeffects Lee la ruta de la aplicación anfitriona (shell) usando useLocation()
  */
 function AuthApp() {
   const { pathname } = useLocation()

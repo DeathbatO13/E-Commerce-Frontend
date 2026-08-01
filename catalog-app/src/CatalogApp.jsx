@@ -1,7 +1,12 @@
 /**
- * CatalogApp — Microfrontend de Catálogo de Productos
+ * Componente CatalogApp — Microfrontend de Catálogo de Productos.
+ * Propósito: Mostrar el catálogo público de productos, categorías y vista de detalle.
  * Expuesto vía Module Federation como: catalogApp/CatalogApp
  * Puerto: 5002
+ * 
+ * @returns {JSX.Element} Interfaz del catálogo de productos
+ * @throws {None}
+ * @sideeffects Ninguno
  */
 function CatalogApp() {
   return (

@@ -8,10 +8,21 @@ import Alert        from '../components/ui/Alert'
 import Divider      from '../components/ui/Divider'
 import GoogleButton from '../components/ui/GoogleButton'
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+/**
+ * Componente LoginPage — Vista principal para inicio de sesión.
+ * Propósito: Renderizar el formulario de login y gestionar sus validaciones locales.
+ * 
+ * @returns {JSX.Element} Formulario de inicio de sesión
+ * @throws {None}
+ * @sideeffects Interactúa con `useLogin` para lanzar la petición de red y navegar en caso de éxito.
+ */
 function LoginPage() {
   const navigate = useNavigate()
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
+  const [validationError, setValidationError] = useState(null)
 
   const { handleLogin, loading, error } = useLogin({
     onSuccess: () => navigate('/'),
@@ -19,14 +30,26 @@ function LoginPage() {
 
   function onSubmit(e) {
     e.preventDefault()
-    handleLogin({ email, password })
+    setValidationError(null)
+
+    if (!EMAIL_PATTERN.test(email.trim())) {
+      setValidationError('Ingresa un correo electrónico válido.')
+      return
+    }
+
+    if (!password) {
+      setValidationError('Ingresa tu contraseña.')
+      return
+    }
+
+    handleLogin({ email: email.trim(), password })
   }
 
   return (
     <form onSubmit={onSubmit} noValidate className="auth-form">
       <h1 className="auth-title">Iniciar Sesión</h1>
 
-      {error && <Alert>{error}</Alert>}
+      {(validationError || error) && <Alert>{validationError || error}</Alert>}
 
       <Input
         label="Email"

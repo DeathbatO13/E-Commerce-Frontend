@@ -8,6 +8,14 @@ const CartApp    = lazy(() => import('cartApp/CartApp'));
 const OrdersApp  = lazy(() => import('ordersApp/OrdersApp'));
 const AdminApp   = lazy(() => import('adminApp/AdminApp'));
 
+/**
+ * Componente LoadingFallback — Pantalla de carga genérica.
+ * Propósito: Mostrar un spinner mientras se carga asíncronamente un Microfrontend remoto.
+ * 
+ * @returns {JSX.Element} Pantalla de carga
+ * @throws {None}
+ * @sideeffects Ninguno
+ */
 function LoadingFallback() {
   return (
     <div className="flex items-center justify-center h-64">
@@ -19,6 +27,14 @@ function LoadingFallback() {
   );
 }
 
+/**
+ * Componente AppRouter — Sistema de enrutamiento global.
+ * Propósito: Orquestar las rutas de la aplicación Shell y montar los Microfrontends (remotos) bajo demanda (lazy).
+ * 
+ * @returns {JSX.Element} Declaración de rutas de la aplicación
+ * @throws {None}
+ * @sideeffects Puede suspender el renderizado mientras carga dependencias remotas
+ */
 function AppRouter() {
   return (
     <Suspense fallback={<LoadingFallback />}>

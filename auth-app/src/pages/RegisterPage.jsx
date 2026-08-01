@@ -7,12 +7,21 @@ import Button        from '../components/ui/Button'
 import Alert         from '../components/ui/Alert'
 
 const MIN_PASSWORD_LENGTH = 6
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+/**
+ * Componente RegisterPage — Vista principal para registro de usuarios.
+ * Propósito: Renderizar el formulario de creación de cuenta y gestionar sus validaciones y estado.
+ * 
+ * @returns {JSX.Element} Formulario de registro de cuenta
+ * @throws {None}
+ * @sideeffects Interactúa con `useRegister` para lanzar la petición de red y navegar en caso de éxito.
+ */
 function RegisterPage() {
   const navigate = useNavigate()
 
   const [form, setForm] = useState({
-    fullname:        '',
+    fullName:        '',
     email:           '',
     password:        '',
     confirmPassword: '',
@@ -29,6 +38,10 @@ function RegisterPage() {
   }
 
   function validate() {
+    if (!form.fullName.trim())
+      return 'Ingresa un nombre completo.'
+    if (!EMAIL_PATTERN.test(form.email.trim()))
+      return 'Ingresa un correo electrónico válido.'
     if (form.password.length < MIN_PASSWORD_LENGTH)
       return `La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.`
     if (form.password !== form.confirmPassword)
@@ -47,8 +60,8 @@ function RegisterPage() {
     }
 
     handleRegister({
-      fullname: form.fullname,
-      email:    form.email,
+      fullName: form.fullName.trim(),
+      email:    form.email.trim(),
       password: form.password,
     })
   }
@@ -67,8 +80,8 @@ function RegisterPage() {
         type="text"
         autoComplete="name"
         placeholder="Juan Pérez"
-        value={form.fullname}
-        onChange={updateField('fullname')}
+        value={form.fullName}
+        onChange={updateField('fullName')}
         required
       />
 

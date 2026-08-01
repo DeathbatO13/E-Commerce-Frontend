@@ -1,7 +1,12 @@
 /**
- * OrdersApp — Microfrontend de Pedidos y Pagos
+ * Componente OrdersApp — Microfrontend de Pedidos y Pagos.
+ * Propósito: Administrar el proceso de checkout y el historial de pedidos del usuario.
  * Expuesto vía Module Federation como: ordersApp/OrdersApp
  * Puerto: 5004
+ * 
+ * @returns {JSX.Element} Interfaz de órdenes y simulación de pago
+ * @throws {None}
+ * @sideeffects Ninguno
  */
 function OrdersApp() {
   return (

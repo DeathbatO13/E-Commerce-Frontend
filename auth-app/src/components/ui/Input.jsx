@@ -1,7 +1,14 @@
 /**
- * Input — Campo de texto con label integrado.
+ * Componente Input — Campo de texto con label integrado.
+ * Propósito: Renderizar un campo de formulario estandarizado con su etiqueta accesible.
  *
- * Acepta todos los atributos nativos de <input>.
+ * @param {Object} props - Propiedades del componente
+ * @param {string} props.label - Texto de la etiqueta (label)
+ * @param {string} props.id - ID único para asociar el input al label
+ * @param {string} [props.className=''] - Clases CSS adicionales
+ * @returns {JSX.Element} Contenedor con label y elemento input
+ * @throws {None}
+ * @sideeffects Ninguno
  */
 function Input({ label, id, className = '', ...props }) {
   return (

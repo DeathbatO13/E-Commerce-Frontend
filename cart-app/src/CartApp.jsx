@@ -1,7 +1,12 @@
 /**
- * CartApp — Microfrontend del Carrito de Compras
+ * Componente CartApp — Microfrontend del Carrito de Compras.
+ * Propósito: Gestionar y visualizar los ítems agregados al carrito temporal del usuario.
  * Expuesto vía Module Federation como: cartApp/CartApp
  * Puerto: 5003
+ * 
+ * @returns {JSX.Element} Interfaz de usuario del carrito
+ * @throws {None}
+ * @sideeffects Ninguno
  */
 function CartApp() {
   return (

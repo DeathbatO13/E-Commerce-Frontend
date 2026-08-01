@@ -10,6 +10,8 @@ export default defineConfig({
       filename: 'remoteEntry.js',
       exposes: {
         './AuthApp': './src/AuthApp.jsx',
+        './authService': './src/services/authService.js',
+        './useAuth': './src/hooks/useAuth.js',
       },
       shared: ['react', 'react-dom', 'react-router-dom'],
     }),
