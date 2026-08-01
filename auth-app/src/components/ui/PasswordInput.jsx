@@ -1,11 +1,17 @@
 import { useState } from 'react'
 
 /**
- * PasswordInput — Campo de contraseña con toggle de visibilidad.
+ * Componente PasswordInput — Campo de contraseña con botón para revelar/ocultar el texto.
+ * Propósito: Renderizar un input seguro que permite al usuario alternar la visibilidad de su contraseña.
  *
- * @param {string}      label      — Texto del label
- * @param {string}      id         — ID del input (para accesibilidad)
- * @param {ReactNode}   hint       — Contenido opcional debajo del input (ej: "¿Olvidaste tu contraseña?")
+ * @param {Object} props - Propiedades del componente
+ * @param {string} props.label - Texto de la etiqueta (label)
+ * @param {string} props.id - ID único para el campo
+ * @param {React.ReactNode} [props.hint] - Contenido opcional adicional (ej: enlace para recuperar contraseña)
+ * @param {string} [props.className=''] - Clases CSS adicionales
+ * @returns {JSX.Element} Input interactivo con ícono
+ * @throws {None}
+ * @sideeffects Mantiene estado local de visibilidad
  */
 function PasswordInput({ label, id, hint, className = '', ...props }) {
   const [visible, setVisible] = useState(false)
@@ -42,6 +48,14 @@ function PasswordInput({ label, id, hint, className = '', ...props }) {
 
 /* ── Iconos ── */
 
+/**
+ * Componente EyeOpenIcon — Ícono de ojo abierto.
+ * Propósito: Representar visualmente el estado de "contraseña visible".
+ * 
+ * @returns {JSX.Element} Ícono SVG
+ * @throws {None}
+ * @sideeffects Ninguno
+ */
 function EyeOpenIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -53,6 +67,14 @@ function EyeOpenIcon() {
   )
 }
 
+/**
+ * Componente EyeClosedIcon — Ícono de ojo cerrado.
+ * Propósito: Representar visualmente el estado de "contraseña oculta".
+ * 
+ * @returns {JSX.Element} Ícono SVG
+ * @throws {None}
+ * @sideeffects Ninguno
+ */
 function EyeClosedIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -1,10 +1,15 @@
 import { useNavigate } from 'react-router-dom'
 
 /**
- * AuthLayout — Layout dividido: panel azul (izq) + panel blanco (der).
+ * Componente AuthLayout — Diseño maestro (Layout) para las páginas de autenticación.
+ * Propósito: Proveer una estructura de dos paneles (branding a la izquierda, formulario a la derecha) con navegación por tabs.
  *
- * @param {'login' | 'register'} activeTab
- * @param {ReactNode}            children   — Formulario activo
+ * @param {Object} props - Propiedades del componente
+ * @param {React.ReactNode} props.children - Formulario hijo que se inyecta en el panel derecho
+ * @param {'login' | 'register'} props.activeTab - Define qué tab está activo para actualizar el contenido visual
+ * @returns {JSX.Element} Contenedor con layout dividido
+ * @throws {None}
+ * @sideeffects Puede invocar la función de navegación (navigate) al cambiar de tab
  */
 function AuthLayout({ children, activeTab }) {
   const navigate = useNavigate()

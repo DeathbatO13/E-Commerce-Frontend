@@ -9,9 +9,9 @@ Basado en la arquitectura hexagonal del backend, el sistema de Microfrontends (u
 El **Shell App** es la aplicación anfitriona que orquestará la carga de todos los microfrontends, gestionará el enrutamiento principal y los estados globales transversales (como la sesión del usuario).
 
 ### Tareas (Shell):
-- [ ] Inicializar el monorepo (Ej. usando Turborepo o Nx) para compartir configuraciones, librerías y dependencias.
-- [ ] Configurar el **Shell App** con React y Webpack/Vite (configurando Module Federation Plugin).
-- [ ] Definir e implementar el sistema de enrutamiento principal (`react-router-dom`).
+- [x] Inicializar el monorepo (Ej. usando Turborepo o Nx) para compartir configuraciones, librerías y dependencias.
+- [x] Configurar el **Shell App** con React y Webpack/Vite (configurando Module Federation Plugin).
+- [x] Definir e implementar el sistema de enrutamiento principal (`react-router-dom`).
 - [ ] **UI Kit Compartido (Shared Library):** Crear un paquete interno o design system con Tailwind CSS para componentes comunes (Botones, Inputs, Modales, Tablas, Headers).
 - [ ] Implementar un mecanismo de estado global compartido mínimo o un bus de eventos (Ej. `CustomEvents` o estado exportado de Module Federation) para compartir el JWT Token y el Rol del usuario entre los remotos.
 - [ ] Integrar un Header global en el Shell que contenga la navegación principal, acceso a login/perfil y el "Mini Cart".
@@ -23,16 +23,16 @@ El **Shell App** es la aplicación anfitriona que orquestará la carga de todos 
 Este microfrontend manejará el registro, inicio de sesión y almacenamiento seguro de los tokens. Debe ser inyectado en el Shell y proveer el estado de autenticación al resto de la aplicación.
 
 ### Tareas (Auth App):
-- [ ] Inicializar el microfrontend `auth-app` y su configuración de exposición en Module Federation.
-- [ ] **Página de Login (`/login`)**:
-  - Implementar formulario con validaciones (Email y Password).
-  - Integrar llamada a `POST /auth/login`.
-  - Manejo de JWT: Guardar en localStorage/sessionStorage/cookies y notificar al Shell del estado activo del usuario.
-- [ ] **Página de Registro (`/register`)**:
-  - Implementar formulario (Nombre, Email, Password).
-  - Integrar llamada a `POST /auth/register` (crea usuario con rol `CLIENT`).
-  - Flujo de redirección al login post-registro.
-- [ ] Exponer funciones utilitarias o Hooks para verificar si hay sesión activa, extraer roles del JWT (`CLIENT`, `ADMIN`, `SUPER_ADMIN`) y ejecutar logout.
+- [x] Inicializar el microfrontend `auth-app` y su configuración de exposición en Module Federation.
+- [x] **Página de Login (`/login`)**:
+  - [x] Implementar formulario con validaciones (Email y Password).
+  - [x] Integrar llamada a `POST /auth/login`.
+  - [x] Manejo de JWT: Guardar en localStorage/sessionStorage/cookies y notificar al Shell del estado activo del usuario.
+- [x] **Página de Registro (`/register`)**:
+  - [x] Implementar formulario (Nombre, Email, Password).
+  - [x] Integrar llamada a `POST /auth/register` (crea usuario con rol `CLIENT`).
+  - [x] Flujo de redirección al login post-registro.
+- [x] Exponer funciones utilitarias o Hooks para verificar si hay sesión activa, extraer roles del JWT (`CLIENT`, `ADMIN`, `SUPER_ADMIN`) y ejecutar logout.
 
 ---
 

@@ -1,173 +1,51 @@
-# E-commerce Platform – MVP
+# E-Commerce Frontend (MVP)
+
+Bienvenido al repositorio Frontend de la plataforma E-Commerce. Este proyecto demuestra un enfoque de arquitectura escalable, orientado a buenas prácticas y separación de responsabilidades.
 
 ## Visión General
 
-Este proyecto es una **plataforma de E-commerce** diseñada con un enfoque **moderno, escalable y orientado a buenas prácticas de arquitectura**.
+El Frontend de esta aplicación está construido utilizando una arquitectura moderna basada en **Microfrontends**. Se compone de una aplicación principal (Shell) y múltiples aplicaciones independientes que se integran en tiempo de ejecución. 
 
-El objetivo principal del MVP es **demostrar dominio técnico y criterio arquitectónico**, aplicando:
+### Tecnologías Principales
+- **React**: Biblioteca principal para la creación de interfaces de usuario.
+- **Vite**: Bundler rápido y moderno.
+- **Module Federation** (`@originjs/vite-plugin-federation`): Tecnología núcleo que permite la división del código en aplicaciones remotas que se consumen desde la aplicación Shell.
+- **Tailwind CSS**: Framework de utilidades para un diseño rápido, responsivo y mantenible.
+- **React Router**: Para el manejo de las rutas en el lado del cliente.
 
-- **Backend:** Spring Boot, Arquitectura Hexagonal, Microservicios  
-- **Frontend:** React con Microfrontends  
-- **Seguridad:** JWT y control de roles  
-- **Calidad:** JUnit y Mockito  
-- **Infraestructura:** Docker y Kubernetes  
-- **Documentación:** OpenAPI / Swagger  
-- **Control de versiones:** Git Flow  
+## Estructura de la Aplicación
 
-Este proyecto está pensado como **portafolio profesional y ejercicio técnico**, no como un producto comercial en producción.
+La aplicación se divide lógicamente en varios paquetes/microfrontends:
 
----
+- **Shell**: Orquestador principal. Aloja el layout, la navegación global y carga los remotos.
+- **Auth App**: Encargado del inicio de sesión, registro y gestión de sesión segura.
+- **Catalog App**: Visualización de los productos, listados y categorías.
+- **Cart App**: Gestión de ítems agregados al carrito temporal.
+- **Orders App**: Flujo de checkout y revisión del historial de pedidos del usuario.
+- **Admin App**: Panel de administración restringido, para la gestión de inventario y usuarios.
 
-## Alcance del MVP
+## Patrones y Convenciones
 
-### Funcionalidades Incluidas
+El proyecto adopta reglas estrictas de desarrollo para mantener la consistencia a lo largo de todos los microfrontends:
 
-#### Autenticación y Usuarios
-- Registro de usuarios
-- Inicio de sesión con JWT
-- Gestión de roles
-- Roles definidos:
-  - **SUPER_ADMIN**: usuario raíz del sistema
-  - **ADMIN**: gestión del e-commerce
-  - **CLIENT**: usuario final
+- **Arquitectura Limpia en UI**: Separación clara entre Vistas (`pages`), Lógica de Estado (`hooks`), Componentes Reutilizables (`components`) y llamadas a red (`services`).
+- **Fetch Nativo**: Se prioriza el uso de la API nativa de fetch para las peticiones HTTP, encapsulando siempre el manejo de errores.
+- **Microfrontends Independientes**: Cada aplicación remota debe ser capaz de correr de manera autónoma en su entorno local de desarrollo para facilitar su depuración y testeo.
 
----
+## Requisitos de Instalación (Desarrollo)
 
-#### Catálogo
-- CRUD de productos (**ADMIN**)
-- CRUD de categorías (**ADMIN**)
-- Listado público de productos
-- Filtro de productos por categoría
+Para levantar este proyecto localmente, necesitas tener **Node.js** (recomendado v18 o superior). El proyecto usa un monorepo, por lo cual es aconsejable instalar las dependencias en cada paquete según sea necesario, o usar herramientas de gestión de monorepos si están configuradas.
 
----
+```bash
+# Ejemplo genérico
+npm install
+npm run dev
+```
 
-#### Carrito de Compras
-- Un carrito activo por usuario
-- Agregar productos al carrito
-- Modificar cantidades
-- Eliminar productos
-- Vaciar carrito
-
----
-
-#### Pedidos
-- Creación de pedidos a partir del carrito
-- Estados del pedido:
-  - `CREATED`
-  - `PAID`
-  - `CANCELLED`
-- Listado de pedidos por usuario
-- Listado global de pedidos (**ADMIN**)
-
----
-
-#### Pagos (Mock)
-- Simulación de pagos
-- Resultado de pago controlado (aprobado / rechazado)
-- Cambio de estado del pedido a `PAID`
-
----
-
-#### Panel de Administración
-- Gestión de productos
-- Gestión de categorías
-- Visualización de pedidos
-- Gestión de usuarios
-- Asignación y revocación del rol **ADMIN** (solo **SUPER_ADMIN**)
-
----
-
-## Funcionalidades Excluidas del MVP
-
-Las siguientes funcionalidades **no forman parte del MVP** y se consideran futuras mejoras:
-
-- Integración con pasarelas de pago reales
-- Promociones, cupones y descuentos
-- Gestión avanzada de inventario
-- Envíos y logística
-- Notificaciones (email, SMS)
-- Mensajería asíncrona (Kafka, RabbitMQ)
-- Tests end-to-end y contract testing
-
----
-
-## Arquitectura General
-
-### Microservicios
-
-| Servicio | Responsabilidad |
-|--------|------------------|
-| Auth/User Service | Autenticación, autorización y usuarios |
-| Catalog Service | Productos y categorías |
-| Cart Service | Gestión del carrito |
-| Order Service | Gestión de pedidos |
-| Payment Service | Simulación de pagos |
-
-Cada microservicio:
-- Implementa **arquitectura hexagonal**
-- Tiene **base de datos independiente**
-- Expone **APIs REST documentadas con OpenAPI**
-
----
-
-### Microfrontends
-
-| Microfrontend | Descripción |
-|--------------|-------------|
-| Auth App | Login y registro |
-| Catalog App | Visualización del catálogo |
-| Cart App | Gestión del carrito |
-| Orders App | Historial de pedidos |
-| Admin App | Panel de administración |
-
----
-
-## Reglas Clave del Sistema
-
-- Todo usuario nuevo se registra como **CLIENT**
-- Existe un único **SUPER_ADMIN**, creado por configuración inicial
-- Solo el **SUPER_ADMIN** puede asignar o revocar el rol **ADMIN**
-- Cada usuario tiene un único carrito activo
-- Los pedidos solo pueden crearse a partir del carrito
-
----
-
-## Organización de Repositorios
-
-El proyecto se divide en dos repositorios principales:
-
-### Backend
-Repositorio: `E-commerce-backend`
-
-- Contiene todos los microservicios
-- Enfoque monorepo
-- Despliegue independiente por servicio
-
-### Frontend
-Repositorio: `E-commerce-frontend`
-
-- Contiene el Shell App y los microfrontends
-- Implementado con React y Module Federation
-
-Esta separación permite:
-- Independencia de despliegue
-- Claridad de responsabilidades
-- Mejor mantenibilidad
-
----
-
-## Objetivo del MVP
-
-Este MVP busca demostrar:
-
-- Diseño limpio y mantenible
-- Uso correcto de arquitectura hexagonal
-- Separación clara de responsabilidades
-- Seguridad basada en roles
-- Buenas prácticas de testing, documentación y despliegue
-
----
+*(Consulta los scripts específicos en el `package.json` para levantar el entorno completo)*
 
 ## Estado del Proyecto
 
-🚧 En desarrollo
+🚧 **En desarrollo (MVP)**
+
+Este proyecto es parte de un MVP enfocado en demostrar habilidades técnicas avanzadas, por lo que muchas funciones complejas de negocio (como logística real y pasarelas de pago externas) han sido simuladas o postergadas.

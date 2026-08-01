@@ -1,8 +1,15 @@
 /**
- * Button — Botón reutilizable con variantes y estado de carga.
+ * Componente Button — Botón reutilizable con variantes y estado de carga.
+ * Propósito: Renderizar un botón HTML estilizado que opcionalmente muestra un spinner de carga.
  *
- * @param {'primary' | 'outline'} variant
- * @param {boolean} loading  — Muestra estado de carga y deshabilita el botón
+ * @param {Object} props - Propiedades del componente
+ * @param {React.ReactNode} props.children - Contenido del botón
+ * @param {'primary' | 'outline'} [props.variant='primary'] - Estilo visual del botón
+ * @param {boolean} [props.loading=false] - Si es true, deshabilita el botón y muestra un spinner
+ * @param {string} [props.className=''] - Clases CSS adicionales
+ * @returns {JSX.Element} Elemento button interactivo
+ * @throws {None}
+ * @sideeffects Ninguno
  */
 function Button({ children, variant = 'primary', loading = false, className = '', ...props }) {
   return (
@@ -19,6 +26,14 @@ function Button({ children, variant = 'primary', loading = false, className = ''
   )
 }
 
+/**
+ * Componente Spinner — Indicador de carga.
+ * Propósito: Renderizar un ícono SVG animado para indicar que un proceso está en curso.
+ * 
+ * @returns {JSX.Element} Elemento SVG giratorio
+ * @throws {None}
+ * @sideeffects Ninguno
+ */
 function Spinner() {
   return (
     <svg

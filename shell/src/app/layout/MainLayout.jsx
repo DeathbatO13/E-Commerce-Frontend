@@ -1,5 +1,15 @@
 import React from 'react'
 
+/**
+ * Componente MainLayout — Layout global del Shell.
+ * Propósito: Estructurar la interfaz general (Header, Main Content, Footer) para todos los microfrontends excepto Auth.
+ * 
+ * @param {Object} props - Propiedades del componente
+ * @param {React.ReactNode} props.children - El contenido principal a renderizar en la sección central
+ * @returns {JSX.Element} Interfaz global de la aplicación
+ * @throws {None}
+ * @sideeffects Ninguno
+ */
 function MainLayout({ children }) {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">

@@ -1,6 +1,12 @@
 /**
- * GoogleButton — Botón de autenticación con Google.
- * Por ahora solo UI — integración OAuth pendiente.
+ * Componente GoogleButton — Botón de autenticación con Google.
+ * Propósito: Proveer la interfaz para el login federado con Google (integración OAuth pendiente).
+ *
+ * @param {Object} props - Propiedades del componente
+ * @param {function} props.onClick - Función ejecutada al hacer clic
+ * @returns {JSX.Element} Botón con estilo específico de Google
+ * @throws {None}
+ * @sideeffects Ejecuta la función onClick proporcionada
  */
 function GoogleButton({ onClick }) {
   return (
@@ -16,6 +22,14 @@ function GoogleButton({ onClick }) {
   )
 }
 
+/**
+ * Componente GoogleIcon — Ícono vectorial de Google.
+ * Propósito: Mostrar el logotipo G de Google en formato SVG.
+ *
+ * @returns {JSX.Element} Logotipo de Google en SVG
+ * @throws {None}
+ * @sideeffects Ninguno
+ */
 function GoogleIcon() {
   return (
     <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
