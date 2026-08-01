@@ -8,6 +8,9 @@ export default defineConfig({
     federation({
       name: 'catalog-app',
       filename: 'remoteEntry.js',
+      remotes: {
+        shellApp: 'http://localhost:5000/assets/remoteEntry.js'
+      },
       exposes: {
         './CatalogApp': './src/CatalogApp.jsx',
       },

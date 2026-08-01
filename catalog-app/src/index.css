@@ -1,3 +1,177 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  /* Layout Classes */
+  .layout-wrapper {
+    @apply font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark relative flex h-auto min-h-screen w-full flex-col;
+  }
+  .main-content {
+    @apply container mx-auto flex flex-grow flex-col px-4 py-8 sm:px-6 lg:px-8;
+  }
+
+  /* Catalog Page Classes */
+  .catalog-page {
+    @apply flex w-full flex-col lg:flex-row lg:gap-8;
+  }
+  .catalog-content {
+    @apply flex-1;
+  }
+  .catalog-header {
+    @apply mb-6;
+  }
+  .catalog-title {
+    @apply text-4xl font-black leading-tight tracking-tighter;
+  }
+  .catalog-subtitle {
+    @apply text-base font-normal leading-normal text-subtext-light dark:text-subtext-dark;
+  }
+  .catalog-loading {
+    @apply rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500;
+  }
+  .catalog-error {
+    @apply rounded-xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-700;
+  }
+  .catalog-product-grid {
+    @apply grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3;
+  }
+
+  /* Filters Sidebar Classes */
+  .catalog-filters {
+    @apply mb-8 w-full shrink-0 lg:mb-0 lg:w-64 xl:w-72;
+  }
+  .catalog-filters-panel {
+    @apply sticky top-24 space-y-6;
+  }
+  .catalog-filters-title {
+    @apply text-lg font-bold;
+  }
+  .catalog-filter-group {
+    @apply space-y-3;
+  }
+  .catalog-filter-label {
+    @apply font-semibold;
+  }
+  .catalog-filter-options {
+    @apply space-y-2;
+  }
+  .catalog-filter-option {
+    @apply flex items-center;
+  }
+  .catalog-filter-radio {
+    @apply h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary;
+  }
+  .catalog-filter-text {
+    @apply ml-3 text-sm;
+  }
+  .catalog-filter-range {
+    @apply h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-primary dark:bg-gray-700;
+  }
+  .catalog-filter-range-labels {
+    @apply flex justify-between text-sm text-subtext-light dark:text-subtext-dark;
+  }
+
+  .catalog-active-filter {
+    @apply inline-flex cursor-pointer items-center;
+  }
+  .catalog-filter-checkbox {
+    @apply sr-only;
+  }
+  .catalog-filter-toggle {
+    @apply relative h-6 w-11 rounded-full bg-gray-200 transition-all duration-200 dark:bg-gray-700;
+  }
+  .catalog-filter-checkbox:checked + .catalog-filter-toggle {
+    @apply bg-primary;
+  }
+  .catalog-filter-checkbox:checked + .catalog-filter-toggle::after {
+    transform: translateX(100%);
+    border-color: white;
+  }
+  .catalog-filter-toggle::after {
+    content: '';
+    @apply absolute top-0.5 start-[2px] h-5 w-5 rounded-full border border-gray-300 bg-white transition-all duration-200 dark:border-gray-600;
+  }
+  .catalog-filter-toggle-text {
+    @apply ms-3 text-sm font-medium;
+  }
+
+  .catalog-filter-actions {
+    @apply flex flex-col space-y-2 pt-4;
+  }
+  .catalog-filter-apply {
+    @apply flex h-10 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-primary text-sm font-bold leading-normal tracking-wide text-white;
+  }
+  .catalog-filter-reset {
+    @apply flex h-10 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-border-light bg-background-light text-sm font-bold leading-normal tracking-wide text-text-light dark:border-border-dark dark:bg-card-dark dark:text-text-dark;
+  }
+
+  /* Product Card Classes */
+  .product-card {
+    @apply relative flex flex-col overflow-hidden rounded-xl border border-border-light bg-card-light shadow-sm transition-all hover:shadow-lg dark:border-border-dark dark:bg-card-dark;
+  }
+  .product-card-image {
+    @apply aspect-square w-full bg-gray-200 bg-cover bg-center bg-no-repeat dark:bg-gray-700;
+  }
+  .product-card-body {
+    @apply flex flex-col gap-1 p-4;
+  }
+  .product-card-category {
+    @apply text-sm font-normal text-subtext-light dark:text-subtext-dark;
+  }
+  .product-card-title {
+    @apply text-base font-bold text-text-light dark:text-text-dark;
+  }
+  .product-card-footer {
+    @apply mt-1 flex items-center justify-between;
+  }
+  .product-card-price {
+    @apply text-lg font-black text-primary;
+  }
+  .product-card-status {
+    @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium;
+  }
+  .product-card-status-active {
+    @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+  }
+  .product-card-status-inactive {
+    @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+  }
+  .product-card-add-btn {
+    @apply absolute bottom-4 right-4 flex h-10 w-10 translate-y-4 items-center justify-center rounded-full text-white opacity-0 transition-all duration-300;
+  }
+  .product-card-add-btn-active {
+    @apply bg-primary;
+  }
+  .product-card-add-btn-inactive {
+    @apply cursor-not-allowed bg-gray-400;
+  }
+
+  /* Pagination Classes */
+  .pagination-container {
+    @apply flex items-center justify-center pt-10;
+  }
+  .pagination-link {
+    @apply flex size-10 items-center justify-center rounded-full text-sm font-normal text-text-light transition-colors hover:bg-primary/10 dark:text-text-dark;
+  }
+  .pagination-link-active {
+    @apply flex size-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-white;
+  }
+  .pagination-link-icon {
+    @apply flex size-10 items-center justify-center text-subtext-light transition-colors hover:text-primary dark:text-subtext-dark;
+  }
+  .pagination-ellipsis {
+    @apply flex size-10 items-center justify-center rounded-full text-sm font-normal text-subtext-light dark:text-subtext-dark;
+  }
+
+  /* Empty State Classes */
+  .catalog-empty-state {
+    @apply rounded-xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center;
+  }
+  .catalog-empty-state-title {
+    @apply text-lg font-semibold text-slate-800;
+  }
+  .catalog-empty-state-description {
+    @apply mt-2 text-sm text-slate-500;
+  }
+}
