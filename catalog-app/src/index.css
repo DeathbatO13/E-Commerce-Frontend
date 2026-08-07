@@ -146,6 +146,9 @@
   .product-card-add-btn-inactive {
     @apply cursor-not-allowed bg-gray-400;
   }
+  .product-card-add-icon {
+    @apply text-xl leading-none;
+  }
 
   /* Pagination Classes */
   .pagination-container {

@@ -17,7 +17,8 @@ export default defineConfig({
       },
       exposes: {
         './TopNavBar': './src/shared/components/TopNavBar.jsx',
-        './Footer': './src/shared/components/Footer.jsx'
+        './Footer':    './src/shared/components/Footer.jsx',
+        './eventBus':  './src/core/events/eventBus.js',
       },
       shared: ['react', 'react-dom', 'react-router-dom'],
     }),

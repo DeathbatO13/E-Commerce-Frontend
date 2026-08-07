@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import CatalogEmptyState from '../components/CatalogEmptyState'
 import CatalogFilters from '../components/CatalogFilters'
 import ProductCard from '../components/ProductCard'
@@ -14,6 +15,7 @@ const DEFAULT_FILTERS = { categoryId: '', activeOnly: true }
  * @sideeffects Consume el hook useCatalog para cargar datos remotos
  */
 function CatalogPage() {
+  const navigate = useNavigate()
   const [draftFilters, setDraftFilters] = useState(DEFAULT_FILTERS)
   const [appliedFilters, setAppliedFilters] = useState(DEFAULT_FILTERS)
   const { categories, products, loading, error } = useCatalog({
@@ -77,7 +79,13 @@ function CatalogPage() {
         {!loading && !error && products.length === 0 && <CatalogEmptyState />}
         {!loading && !error && products.length > 0 && (
           <div className="catalog-product-grid">
-            {products.map(product => <ProductCard key={product.id} product={product} />)}
+            {products.map(product => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onNavigate={navigate}
+              />
+            ))}
           </div>
         )}
 

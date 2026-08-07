@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes badge-pop {
+  0%   { transform: scale(0); opacity: 0; }
+  70%  { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 @layer components {
   /* Layout Classes */
   .layout-wrapper {
@@ -29,7 +35,7 @@
     @apply flex items-center gap-2 text-text-light dark:text-text-dark;
   }
   .navbar-brand-icon {
-    @apply text-primary text-3xl;
+    @apply text-2xl leading-none;
   }
   .navbar-brand-title {
     @apply text-xl font-bold;
@@ -59,10 +65,11 @@
     @apply flex h-full w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg rounded-l-none border-l-0 border-none bg-background-light px-4 pl-2 text-sm font-normal text-text-light focus:outline-0 focus:ring-0 dark:bg-background-dark dark:text-text-dark placeholder:text-subtext-light dark:placeholder:text-subtext-dark;
   }
   .cart-btn {
-    @apply relative flex cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 w-10 bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark transition-colors hover:bg-primary/10;
+    @apply relative flex cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 w-10 bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark transition-colors hover:bg-primary/10 no-underline;
   }
   .cart-badge {
-    @apply absolute top-1 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-white;
+    @apply absolute top-0.5 right-0.5 flex h-4 w-4 min-w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-white;
+    animation: badge-pop 0.25s ease-out;
   }
   .user-avatar {
     @apply bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10;
@@ -92,5 +99,19 @@
   }
   .footer-copyright {
     @apply text-subtext-light dark:text-subtext-dark text-sm font-normal;
+  }
+
+  /* AppRouter — estados de carga de microfrontends */
+  .router-loading {
+    @apply flex items-center justify-center h-64;
+  }
+  .router-loading-inner {
+    @apply flex flex-col items-center gap-3;
+  }
+  .router-loading-spinner {
+    @apply animate-spin rounded-full h-10 w-10 border-b-2 border-primary;
+  }
+  .router-loading-text {
+    @apply text-sm text-subtext-light dark:text-subtext-dark;
   }
 }

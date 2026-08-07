@@ -1,20 +1,45 @@
+import { emit, CART_ADD_ITEM } from 'shellApp/eventBus'
+import { getSession } from 'authApp/authService'
+
 /**
  * Componente ProductCard.
- * Propósito: Presentar los datos públicos de un producto sin depender todavía de imágenes ni del carrito.
+ * Propósito: Presentar los datos públicos de un producto y permitir agregarlo al carrito.
+ * Si el usuario no está autenticado, redirige a `/login` antes de emitir el evento.
+ * Si el producto está inactivo (out of stock), el botón se deshabilita.
  *
  * @param {Object} props - Propiedades del componente
- * @param {{ name: string, description?: string, price: number, active: boolean, category?: { name?: string } }} props.product - Producto a mostrar
- * @returns {JSX.Element} Tarjeta de producto
- * @sideeffects Ninguno
+ * @param {{ id: string, name: string, description?: string, price: number, active: boolean, category?: { name?: string } }} props.product - Producto a mostrar
+ * @param {function} [props.onNavigate] - Función de navegación inyectada por el padre (permite redirigir sin depender directamente de react-router)
+ * @returns {JSX.Element} Tarjeta de producto con botón de agregar al carrito
+ * @sideeffects Emite el evento `CART_ADD_ITEM` en el eventBus al agregar un producto
  */
-function ProductCard({ product }) {
+function ProductCard({ product, onNavigate }) {
   const price = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
   }).format(product.price)
 
+  /**
+   * Maneja el click en el botón "Agregar al carrito".
+   * Verifica autenticación antes de emitir el evento.
+   * Si no hay sesión activa, redirige al login.
+   *
+   * @returns {void}
+   * @sideeffects Emite `CART_ADD_ITEM` o redirige a /login
+   */
+  function handleAddToCart() {
+    const session = getSession()
+
+    if (!session.isAuthenticated) {
+      onNavigate?.('/login')
+      return
+    }
+
+    emit(CART_ADD_ITEM, { productId: product.id, quantity: 1 })
+  }
+
   return (
-    <div className="product-card group">
+    <div className="product-card">
       <div className="product-card-image" aria-label={`Image of ${product.name}`}></div>
       <div className="product-card-body">
         <p className="product-card-category">{product.category?.name || 'Uncategorized'}</p>
@@ -27,10 +52,15 @@ function ProductCard({ product }) {
         </div>
       </div>
       <button
-        className={`product-card-add-btn group-hover:translate-y-0 group-hover:opacity-100 ${product.active ? 'product-card-add-btn-active' : 'product-card-add-btn-inactive'}`}
+        className={`product-card-add-btn ${product.active ? 'product-card-add-btn-active' : 'product-card-add-btn-inactive'}`}
+        onClick={handleAddToCart}
         disabled={!product.active}
+        aria-label={product.active ? `Agregar ${product.name} al carrito` : `${product.name} sin stock`}
+        title={product.active ? 'Agregar al carrito' : 'Sin stock'}
       >
-        <span className="material-symbols-outlined text-xl">{product.active ? 'add_shopping_cart' : 'remove_shopping_cart'}</span>
+        <span className="material-symbols-outlined product-card-add-icon">
+          {product.active ? 'add_shopping_cart' : 'remove_shopping_cart'}
+        </span>
       </button>
     </div>
   )

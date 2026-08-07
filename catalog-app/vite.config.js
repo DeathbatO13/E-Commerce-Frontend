@@ -9,7 +9,8 @@ export default defineConfig({
       name: 'catalog-app',
       filename: 'remoteEntry.js',
       remotes: {
-        shellApp: 'http://localhost:5000/assets/remoteEntry.js'
+        shellApp: 'http://localhost:5000/assets/remoteEntry.js',
+        authApp:  'http://localhost:5001/assets/remoteEntry.js',
       },
       exposes: {
         './CatalogApp': './src/CatalogApp.jsx',

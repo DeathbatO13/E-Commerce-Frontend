@@ -1,21 +1,12 @@
 import { Routes, Route, Suspense, lazy } from "react-router-dom";
 import MainLayout from "../layout/MainLayout";
-import CatalogPage from "../../../../catalog-app/src/pages/CatalogPage";
 
 // Microfrontends cargados dinámicamente vía Module Federation
-const AuthApp    = lazy(() => import('authApp/AuthApp'));
-const CartApp    = lazy(() => import('cartApp/CartApp'));
-const OrdersApp  = lazy(() => import('ordersApp/OrdersApp'));
-const AdminApp   = lazy(() => import('adminApp/AdminApp'));
-
-function HomeFallback() {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-      <h1 className="text-2xl font-bold text-slate-900">Bienvenido a ReactStore</h1>
-      <p className="mt-2 text-sm text-slate-600">El catálogo remoto se cargará cuando el entorno de preview esté listo.</p>
-    </div>
-  );
-}
+const AuthApp     = lazy(() => import('authApp/AuthApp'));
+const CatalogApp  = lazy(() => import('catalogApp/CatalogApp'));
+const CartApp     = lazy(() => import('cartApp/CartApp'));
+const OrdersApp   = lazy(() => import('ordersApp/OrdersApp'));
+const AdminApp    = lazy(() => import('adminApp/AdminApp'));
 
 /**
  * Componente LoadingFallback — Pantalla de carga genérica.
@@ -27,10 +18,10 @@ function HomeFallback() {
  */
 function LoadingFallback() {
   return (
-    <div className="flex items-center justify-center h-64">
-      <div className="flex flex-col items-center gap-3">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500" />
-        <p className="text-sm text-gray-400">Cargando módulo…</p>
+    <div className="router-loading">
+      <div className="router-loading-inner">
+        <div className="router-loading-spinner" />
+        <p className="router-loading-text">Cargando módulo…</p>
       </div>
     </div>
   );
@@ -59,8 +50,8 @@ function AppRouter() {
               <Route path="/cart"      element={<CartApp />} />
               <Route path="/orders/*"  element={<OrdersApp />} />
               <Route path="/admin/*"   element={<AdminApp />} />
-              <Route path="/"          element={<HomeFallback />} />
-              <Route path="/*"         element={<CatalogPage />} />
+              <Route path="/"          element={<CatalogApp />} />
+              <Route path="/*"         element={<CatalogApp />} />
             </Routes>
           </MainLayout>
         } />
