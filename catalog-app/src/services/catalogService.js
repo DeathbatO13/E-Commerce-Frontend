@@ -32,6 +32,19 @@ export async function getProducts({ categoryId, active } = {}) {
 }
 
 /**
+ * Obtiene los detalles de un producto por su ID.
+ *
+ * @param {string} id - ID del producto
+ * @returns {Promise<{ id: string, name: string, description?: string, price: number, active: boolean, category?: Object }>} Detalles del producto
+ * @throws {Error} Si el producto no existe o el servicio falla
+ * @sideeffects Realiza una petición HTTP GET a /products/{id}
+ */
+export async function getProductById(id) {
+  const response = await fetch(`${CATALOG_BASE_URL}/products/${id}`)
+  return parseResponse(response, 'No fue posible cargar los detalles del producto.')
+}
+
+/**
  * Convierte una respuesta HTTP del catálogo a JSON o lanza un error usable por la UI.
  *
  * @param {Response} response - Respuesta de Fetch

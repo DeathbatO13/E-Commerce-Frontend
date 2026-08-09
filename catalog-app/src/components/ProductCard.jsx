@@ -27,7 +27,8 @@ function ProductCard({ product, onNavigate }) {
    * @returns {void}
    * @sideeffects Emite `CART_ADD_ITEM` o redirige a /login
    */
-  function handleAddToCart() {
+  function handleAddToCart(e) {
+    e.stopPropagation() // Prevent navigating when adding to cart
     const session = getSession()
 
     if (!session.isAuthenticated) {
@@ -38,12 +39,25 @@ function ProductCard({ product, onNavigate }) {
     emit(CART_ADD_ITEM, { productId: product.id, quantity: 1 })
   }
 
+  function handleNavigateToDetail() {
+    onNavigate?.(`/products/${product.id}`)
+  }
+
   return (
     <div className="product-card">
-      <div className="product-card-image" aria-label={`Image of ${product.name}`}></div>
+      <div 
+        className="product-card-image cursor-pointer" 
+        aria-label={`Image of ${product.name}`}
+        onClick={handleNavigateToDetail}
+      ></div>
       <div className="product-card-body">
         <p className="product-card-category">{product.category?.name || 'Uncategorized'}</p>
-        <p className="product-card-title">{product.name}</p>
+        <p 
+          className="product-card-title cursor-pointer hover:text-primary transition-colors"
+          onClick={handleNavigateToDetail}
+        >
+          {product.name}
+        </p>
         <div className="product-card-footer">
           <p className="product-card-price">{price}</p>
           <span className={`product-card-status ${product.active ? 'product-card-status-active' : 'product-card-status-inactive'}`}>
