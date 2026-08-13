@@ -169,6 +169,10 @@
   .product-detail-image-placeholder {
     @apply w-full aspect-square bg-gray-200 dark:bg-gray-800 rounded-2xl flex items-center justify-center;
   }
+  .product-detail-image-placeholder-icon {
+    @apply text-6xl opacity-20;
+    font-size: 4rem;
+  }
   .product-detail-info {
     @apply flex flex-col;
   }

@@ -1,3 +1,187 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  /* Cart Page Layout */
+  .cart-page {
+    @apply max-w-7xl mx-auto p-4 md:p-8 min-h-[60vh];
+  }
+  
+  .cart-page-header {
+    @apply flex flex-col md:flex-row md:items-end justify-between border-b border-gray-200 pb-4 mb-8;
+  }
+  
+  .cart-page-title {
+    @apply text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight;
+  }
+  
+  .cart-page-subtitle {
+    @apply text-gray-500 mt-2 md:mt-0 font-medium;
+  }
+  
+  .cart-page-content {
+    @apply flex flex-col lg:flex-row gap-8 items-start;
+  }
+  
+  .cart-page-items-container {
+    @apply w-full lg:w-2/3;
+  }
+  
+  .cart-page-summary-container {
+    @apply w-full lg:w-1/3 sticky top-24;
+  }
+
+  /* States (Loading/Empty/Error) */
+  .cart-page-loading, .cart-page-error, .cart-page-empty {
+    @apply flex flex-col items-center justify-center min-h-[50vh] text-center;
+  }
+  
+  .cart-page-empty-icon {
+    @apply text-6xl text-gray-300 mb-4;
+  }
+  
+  .cart-page-empty h2, .cart-page-error h2 {
+    @apply text-2xl font-bold text-gray-800 mb-2;
+  }
+  
+  .cart-page-empty p, .cart-page-error p {
+    @apply text-gray-500 mb-6;
+  }
+
+  .cart-page-back-link {
+    @apply inline-flex items-center gap-2 text-primary font-medium hover:text-blue-700 transition-colors bg-transparent border-none cursor-pointer;
+  }
+
+  /* Cart Items Table Header */
+  .cart-items-header {
+    @apply hidden md:flex w-full bg-white rounded-t-xl p-4 text-sm font-semibold text-gray-500 border-b border-gray-100;
+  }
+  
+  .cart-items-header-product { @apply w-1/2 pl-4; }
+  .cart-items-header-quantity { @apply w-1/6 text-center; }
+  .cart-items-header-price { @apply w-1/6 text-right; }
+  .cart-items-header-total { @apply w-1/6 text-right pr-4; }
+  
+  .cart-items-list {
+    @apply bg-white rounded-b-xl shadow-sm border border-gray-100 divide-y divide-gray-100 overflow-hidden mb-6;
+  }
+
+  /* Cart Item Row */
+  .cart-item {
+    @apply flex flex-col md:flex-row items-center p-4 md:p-6 gap-4 hover:bg-gray-50 transition-colors;
+  }
+  
+  .cart-item-info-col {
+    @apply flex items-center gap-4 w-full md:w-1/2;
+  }
+  
+  .cart-item-image {
+    @apply w-16 h-16 md:w-20 md:h-20 bg-gray-100 rounded-lg flex items-center justify-center shrink-0 overflow-hidden;
+  }
+  
+  .cart-item-placeholder-icon {
+    @apply text-3xl text-gray-400;
+  }
+  
+  .cart-item-details {
+    @apply flex flex-col;
+  }
+  
+  .cart-item-title {
+    @apply font-bold text-gray-900 text-base md:text-lg;
+  }
+  
+  .cart-item-variant {
+    @apply text-sm text-gray-500 mt-1;
+  }
+  
+  .cart-item-quantity-col {
+    @apply w-full md:w-1/6 flex justify-between md:justify-center items-center;
+  }
+  
+  .cart-item-quantity-selector {
+    @apply flex items-center bg-gray-100 rounded-full overflow-hidden;
+  }
+  
+  .cart-item-quantity-btn {
+    @apply w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors bg-transparent border-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .cart-item-quantity-btn .material-symbols-outlined {
+    @apply text-sm;
+  }
+  
+  .cart-item-quantity-value {
+    @apply w-8 text-center font-semibold text-gray-800 text-sm;
+  }
+  
+  .cart-item-price-col {
+    @apply hidden md:block md:w-1/6 text-right;
+  }
+  
+  .cart-item-price {
+    @apply font-medium text-gray-600;
+  }
+  
+  .cart-item-total-col {
+    @apply hidden md:block md:w-1/6 text-right pr-2;
+  }
+  
+  .cart-item-total {
+    @apply font-bold text-gray-900 text-lg;
+  }
+
+  .cart-page-actions {
+    @apply mt-6;
+  }
+
+  /* Order Summary Panel */
+  .order-summary-card {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8;
+  }
+  
+  .order-summary-title {
+    @apply text-xl font-bold text-gray-900 mb-6;
+  }
+  
+  .order-summary-row {
+    @apply flex justify-between items-center mb-4;
+  }
+  
+  .order-summary-label {
+    @apply text-gray-600 font-medium;
+  }
+  
+  .order-summary-value {
+    @apply font-semibold text-gray-900;
+  }
+  
+  .order-summary-value-light {
+    @apply text-sm text-gray-500;
+  }
+  
+  .order-summary-shipping {
+    @apply mb-6;
+  }
+  
+  .order-summary-divider {
+    @apply border-t border-gray-200 my-6;
+  }
+  
+  .order-summary-total-row {
+    @apply mb-8;
+  }
+  
+  .order-summary-total-label {
+    @apply text-lg font-bold text-gray-900;
+  }
+  
+  .order-summary-total-value {
+    @apply text-2xl font-bold text-gray-900;
+  }
+  
+  .order-summary-checkout-btn {
+    @apply w-full flex items-center justify-center gap-2 bg-primary text-white font-bold py-4 px-6 rounded-xl hover:bg-blue-600 transition-colors shadow-md shadow-primary/20 border-none cursor-pointer;
+  }
+}
