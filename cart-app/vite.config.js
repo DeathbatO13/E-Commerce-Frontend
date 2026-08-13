@@ -8,6 +8,9 @@ export default defineConfig({
     federation({
       name: 'cart-app',
       filename: 'remoteEntry.js',
+      remotes: {
+        authApp: 'http://localhost:5001/assets/remoteEntry.js'
+      },
       exposes: {
         './CartApp': './src/CartApp.jsx',
       },

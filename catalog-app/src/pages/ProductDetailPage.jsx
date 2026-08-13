@@ -59,7 +59,7 @@ function ProductDetailPage() {
         <div className="product-detail-image-container">
            {/* Placeholder for product image */}
            <div className="product-detail-image-placeholder">
-             <span className="material-symbols-outlined" style={{ fontSize: '4rem', opacity: 0.2 }}>inventory_2</span>
+             <span className="material-symbols-outlined product-detail-image-placeholder-icon">inventory_2</span>
            </div>
         </div>
 
