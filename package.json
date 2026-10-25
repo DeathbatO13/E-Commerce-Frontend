@@ -1,6 +1,7 @@
 {
   "name": "e-commerce-frontend",
   "private": true,
+  "packageManager": "npm@11.21.0",
   "workspaces": [
     "shell",
     "auth-app",

@@ -1,4 +1,5 @@
-import { Routes, Route, Suspense, lazy } from "react-router-dom";
+import { Suspense, lazy } from "react";
+import { Routes, Route } from "react-router-dom";
 import MainLayout from "../layout/MainLayout";
 
 // Microfrontends cargados dinámicamente vía Module Federation
