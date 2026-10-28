@@ -76,8 +76,28 @@ Microfrontends incluidos:
 * **Auth App**: Autenticación y gestión de sesión
 * **Catalog App**: Visualización de productos y categorías
 * **Cart App**: Gestión del carrito de compras
-* **Orders App**: Consulta de pedidos
+* **Orders App**: Checkout, pago simulado y consulta de pedidos
 * **Admin App**: Gestión administrativa del sistema
+
+#### Topología de Module Federation
+
+Cada microfrontend es una aplicación Vite independiente que publica un `remoteEntry.js`. El Shell los carga
+en runtime y todos comparten `react`, `react-dom` y `react-router-dom`.
+
+| App | Puerto local | Expone | Consume |
+|---|---|---|---|
+| Shell | 5000 | `TopNavBar`, `Footer`, `eventBus` | Los 5 remotos |
+| Auth App | 5001 | `AuthApp`, `authService`, `useAuth` | — |
+| Catalog App | 5002 | `CatalogApp` | `shellApp`, `authApp` |
+| Cart App | 5003 | `CartApp` | `authApp` |
+| Orders App | 5004 | `OrdersApp` | — |
+| Admin App | 5005 | `AdminApp` | — |
+
+La comunicación **entre microfrontends** usa `CustomEvent` sobre `window` (`ecommerce:cart-add-item`,
+`ecommerce:auth-session-change`). Es un mecanismo del navegador, distinto de la comunicación entre
+microservicios, que en el MVP sigue siendo síncrona.
+
+El detalle de cada app está en su propio `README.md`.
 
 ---
 
@@ -135,6 +155,21 @@ Cada microservicio cuenta con su **propia base de datos**, garantizando:
 * Una base de datos por microservicio
 * Pagos simulados para evitar dependencias externas
 * Arquitectura orientada a escalabilidad y mantenibilidad
+* Frontend desplegado en **Vercel**, un proyecto por microfrontend (ver sección siguiente)
+
+---
+
+## ☁️ Despliegue del frontend
+
+* Cada microfrontend es un proyecto Vercel independiente sobre el mismo repositorio, con su propio
+  *Root Directory*, para que cada remoto sirva su `remoteEntry.js` desde una URL estable.
+* Las URLs de los remotos se inyectan con variables `VITE_*_REMOTE_URL` y quedan fijadas al compilar: los
+  remotos se despliegan primero y el Shell al final.
+* Cada remoto debe permitir CORS sobre `/assets/*`, porque el Shell los importa desde otro origen.
+* El backend se despliega fuera de este repositorio y debe exponerse por HTTPS, con CORS para los dominios
+  del frontend.
+
+El plan de tareas está en la Fase 8 del [Roadmap](../../Roadmap-Microfrontends.md).
 
 ---
 
@@ -143,7 +178,7 @@ Cada microservicio cuenta con su **propia base de datos**, garantizando:
 Esta documentación corresponde al **MVP** del proyecto. No se incluyen en esta fase:
 
 * Integraciones con sistemas externos reales
-* Comunicación asíncrona por eventos
+* Comunicación asíncrona por eventos entre microservicios
 * Diagramas de componentes o código
 
 Estos aspectos se incorporarán en iteraciones posteriores.
