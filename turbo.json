@@ -1,5 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [".env", ".env.*", "eslint.config.js"],
+  "globalEnv": ["VITE_*"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

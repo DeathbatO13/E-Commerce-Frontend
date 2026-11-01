@@ -21,7 +21,7 @@ Microfrontend del carrito de compras de un usuario autenticado.
   fijos con `setTimeout`. Faltan `GET /cart`, `POST /cart/items`, `PUT /cart/items/{productId}`,
   `DELETE /cart/items/{productId}` y `DELETE /cart` con `Authorization: Bearer <token>`.
 - No escucha el evento `CART_ADD_ITEM`, así que lo que se agrega desde el catálogo no llega al carrito.
-- No hay botón para eliminar un ítem ni para vaciar el carrito.
+- El botón "Eliminar" de cada ítem ya existe, pero llama al servicio mock. No hay botón para vaciar el carrito.
 - "Proceder al Checkout" no navega a Orders App todavía.
 
 Detalle en [backlog §4](../docs/backlog-mvp.md).

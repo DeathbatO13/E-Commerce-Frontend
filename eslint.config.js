@@ -4,8 +4,9 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
+// Config compartida por las 6 apps: `eslint .` dentro de cada workspace sube hasta este archivo.
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['**/dist', '**/node_modules', '.turbo']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [
@@ -24,6 +25,13 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+    },
+  },
+  {
+    // Archivos de configuración (Vite, Tailwind, PostCSS, ESLint): se ejecutan en Node, no en el navegador
+    files: ['*.config.js', '**/*.config.js'],
+    languageOptions: {
+      globals: globals.node,
     },
   },
 ])

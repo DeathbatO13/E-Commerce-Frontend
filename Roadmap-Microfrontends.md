@@ -97,7 +97,8 @@ Gestiona exclusivamente el carrito de un usuario autenticado.
   - [x] Listado de ítems `CartItem` con totalización (sobre datos mock).
   - [ ] Integrar adición: `POST /cart/items`, escuchando el evento `CART_ADD_ITEM` que emite Catalog App (**hoy nadie lo escucha**).
   - [~] Integrar modificación: `PUT /cart/items/{productId}` (UI lista, servicio mock).
-  - [ ] Integrar eliminación individual `DELETE /cart/items/{productId}` (falta el botón en la UI) y vaciado global `DELETE /cart`.
+  - [~] Integrar eliminación individual `DELETE /cart/items/{productId}` (botón en la UI listo, servicio mock).
+  - [ ] Integrar vaciado global `DELETE /cart` (falta el botón y el servicio).
 - [~] Botón de CTA "Proceder al Checkout": existe en la UI pero no navega a Orders App.
 
 ---
@@ -148,7 +149,7 @@ Panel de control para operaciones del negocio. Acceso protegido y validado en Fr
 
 ## 🧪 Fase 7: Calidad y Testing (Transversal)
 
-- [ ] Configuración de ESLint en los 5 remotos (hoy solo existe en `shell`, `npm run lint` falla).
+- [x] Configuración de ESLint compartida para las 6 apps (`eslint.config.js` en la raíz).
 - [ ] Implementar un `httpClient` compartido (wrapper de `fetch`) en el *UI Kit* o *Shell* para controlar 401, 403, 404 y vaciar sesión.
 - [ ] Testing Unitario y de Integración con Vitest y React Testing Library para casos críticos (validaciones de formularios, hooks, `eventBus`, guards).
 - [ ] Testing End-to-End con Playwright (recomendado por el soporte multi-origen) o Cypress, recorriendo el User Journey (Registro → Login → Catálogo → Carrito → Checkout).

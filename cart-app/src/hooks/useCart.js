@@ -22,9 +22,23 @@ export function useCart() {
     }
   }, []);
 
+  // Carga inicial: `loading` ya arranca en true, así que el efecto solo actualiza estado al resolver la promesa.
   useEffect(() => {
-    fetchCart();
-  }, [fetchCart]);
+    let cancelled = false;
+
+    getCart()
+      .then(data => {
+        if (!cancelled) setCart(data);
+      })
+      .catch(err => {
+        if (!cancelled) setError(err.message || 'Error al cargar el carrito');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, []);
 
   const updateQuantity = async (productId, currentQuantity, change) => {
     const newQuantity = currentQuantity + change;

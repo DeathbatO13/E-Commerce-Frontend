@@ -24,6 +24,15 @@ function CartItem({ item, onUpdateQuantity, onRemove }) {
         <div className="cart-item-details">
           <p className="cart-item-title">{item.name}</p>
           <p className="cart-item-variant">{item.variant}</p>
+          <button
+            type="button"
+            className="cart-item-remove-btn"
+            onClick={() => onRemove(item.productId)}
+            aria-label={`Eliminar ${item.name} del carrito`}
+          >
+            <span className="material-symbols-outlined">delete</span>
+            Eliminar
+          </button>
         </div>
       </div>
       

@@ -24,7 +24,7 @@
 | **Testing** | **Inexistente** — ni Vitest/Jest ni Testing Library ni Playwright/Cypress en ningún `package.json`. |
 | **CI/CD** | No existe carpeta `.github/`. |
 | **Vercel** | Remotes ya parametrizados por entorno; no existe `vercel.json` ni proyectos creados. Vercel es el **único** destino de despliegue (se descartó Docker + NGINX). |
-| **Lint** | Solo `shell/eslint.config.js` existe; los otros 5 apps tienen `"lint": "eslint ."` pero **sin config propia** → falla al ejecutarse. |
+| **Lint** | `eslint.config.js` único en la raíz; `turbo run lint` pasa en las 6 apps. |
 
 ---
 
@@ -240,7 +240,7 @@ Ningún `package.json` tiene Vitest, Jest, Testing Library, Cypress o Playwright
 No existe `.github/workflows/`.
 
 - [ ] `.github/workflows/ci.yml` — en cada push/PR a `develop` y `main`:
-  - [ ] Job `lint`: `turbo run lint` (requiere primero resolver el punto 11 — configs de ESLint faltantes).
+  - [ ] Job `lint`: `turbo run lint` (ya funciona en local).
   - [ ] Job `test`: `turbo run test` con cobertura, usando cache de Turborepo (`actions/cache` sobre
         `.turbo/`).
   - [ ] Job `build`: `turbo run build`, matriz por app o build único, verificando que los 6 `dist/` se
@@ -297,16 +297,19 @@ No existe `.github/workflows/`.
 
 ## 11. Higiene de código y DX (transversal, hacer primero)
 
-- [ ] Crear `eslint.config.js` en `auth-app`, `catalog-app`, `cart-app`, `orders-app`, `admin-app` (hoy
-      `"lint": "eslint ."` falla en los 5 porque no hay config — solo existe en `shell/eslint.config.js`).
-      Idealmente centralizar en un config compartido en la raíz e importarlo desde cada app.
+- [x] ESLint centralizado: un único `eslint.config.js` en la raíz (antes en `shell/`) que usan las 6 apps
+      (`eslint .` en cada workspace sube hasta la raíz). Las dependencias de ESLint pasaron del `package.json`
+      del shell al de la raíz. `turbo run lint` pasa sin errores en las 6 apps.
 - [x] Resolver `package-lock.json` duplicado: se eliminó `shell/package-lock.json`; solo queda el de la
       raíz (npm workspaces). Reinstalar desde la raíz para limpiar `shell/node_modules`.
 - [x] `.env.example` centralizado en la raíz (en lugar de uno por app): los 6 `vite.config.js` usan
       `envDir` apuntando a la raíz del monorepo.
 - [x] Añadir `packageManager` en el `package.json` raíz (Turborepo 2 lo exige para resolver workspaces).
-- [ ] Añadir `engines` en el `package.json` raíz (`"node": ">=18"`) ya mencionado en el README pero no
-      forzado.
+- [x] Añadir `engines` en el `package.json` raíz: `^20.19.0 || >=22.12.0`, el mínimo que exige Vite 7 (el
+      README decía Node 18, que no es compatible).
+- [x] `turbo.json`: `eslint.config.js` y `.env*` como `globalDependencies`, y `VITE_*` como `globalEnv`. Sin
+      esto turbo reutilizaba builds de caché aunque cambiaran las URLs de los remotes, y en modo estricto no
+      pasaba las variables `VITE_*` del entorno a `vite build` (relevante para Vercel y CI).
 - [ ] Evaluar `prettier` + `husky`/`lint-staged` para consistencia de formato antes de CI (opcional pero
       recomendable dado el volumen de apps).
 - [ ] Considerar TypeScript incremental (al menos para `services/` y `hooks/`, que son la lógica más
@@ -342,7 +345,8 @@ son propiedad del backend: se deben acordar allí y luego reflejar aquí.
 
 ## Orden de trabajo sugerido
 
-1. **Higiene base** (§11) — lockfile y `.env` ya resueltos; falta la configuración de ESLint.
+1. ~~**Higiene base** (§11)~~ — resuelto (lockfile, `.env`, ESLint, `engines`). Quedan solo los opcionales
+   (Prettier/Husky, TypeScript).
 2. **Cerrar el flujo de compra** (§4, §5) — conectar `cart-app` de verdad y construir `orders-app`, porque
    hoy el user journey principal (catálogo → carrito → checkout) está roto en el medio.
 3. **Admin App** (§6) — desbloquea el segundo actor del sistema.
