@@ -39,7 +39,7 @@ El proyecto adopta reglas estrictas de desarrollo para mantener la consistencia 
 
 ## Requisitos de Instalación (Desarrollo)
 
-Necesitas **Node.js 18 o superior** y **npm** (la versión exacta está fijada en `packageManager` del `package.json`). Instala siempre desde la raíz: el monorepo usa npm workspaces con un único `package-lock.json`.
+Necesitas **Node.js `^20.19.0` o `>=22.12.0`** (lo exige Vite 7; está fijado en `engines`) y **npm** (la versión exacta está fijada en `packageManager` del `package.json`). Instala siempre desde la raíz: el monorepo usa npm workspaces con un único `package-lock.json`.
 
 ```bash
 npm install
@@ -65,7 +65,7 @@ npm run dev:all
 | `npm run dev` | Igual, pero orquestado por Turborepo. |
 | `npm run build` | Compila las 6 apps (`turbo run build`). |
 | `npm run preview` | Compila y sirve las 6 apps en modo producción. |
-| `npm run lint` | Ejecuta ESLint en cada app. Hoy solo el shell tiene configuración (ver backlog §11). |
+| `npm run lint` | Ejecuta ESLint en las 6 apps con la configuración compartida de la raíz (`eslint.config.js`). |
 
 Los remotos se sirven con `vite build --watch` + `vite preview`, no con el servidor de desarrollo de Vite: el plugin de federation necesita compilar para publicar `remoteEntry.js`. Por eso los cambios en un remoto no tienen HMR y requieren recargar la página.
 

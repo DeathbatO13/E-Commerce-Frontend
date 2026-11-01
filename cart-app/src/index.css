@@ -95,6 +95,14 @@
   .cart-item-variant {
     @apply text-sm text-gray-500 mt-1;
   }
+
+  .cart-item-remove-btn {
+    @apply mt-2 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 transition-colors bg-transparent border-none p-0 cursor-pointer;
+  }
+
+  .cart-item-remove-btn .material-symbols-outlined {
+    @apply text-base;
+  }
   
   .cart-item-quantity-col {
     @apply w-full md:w-1/6 flex justify-between md:justify-center items-center;

@@ -9,26 +9,21 @@ import { getProductById } from '../services/catalogService'
  * @returns {{ product: Object|null, loading: boolean, error: string|null }} Estado de la petición
  */
 export function useProductDetail(id) {
-  const [product, setProduct] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  // El resultado guarda el id al que pertenece: mientras no coincida con el id actual, se está cargando.
+  // Así no hace falta resetear loading/error de forma síncrona dentro del efecto.
+  const [result, setResult] = useState({ id: null, product: null, error: null })
 
   useEffect(() => {
     if (!id) return
 
     let isMounted = true
-    setLoading(true)
-    setError(null)
 
     getProductById(id)
       .then(data => {
-        if (isMounted) setProduct(data)
+        if (isMounted) setResult({ id, product: data, error: null })
       })
       .catch(err => {
-        if (isMounted) setError(err.message)
-      })
-      .finally(() => {
-        if (isMounted) setLoading(false)
+        if (isMounted) setResult({ id, product: null, error: err.message })
       })
 
     return () => {
@@ -36,5 +31,11 @@ export function useProductDetail(id) {
     }
   }, [id])
 
-  return { product, loading, error }
+  const isCurrent = result.id === id
+
+  return {
+    product: isCurrent ? result.product : null,
+    loading: Boolean(id) && !isCurrent,
+    error: isCurrent ? result.error : null,
+  }
 }
