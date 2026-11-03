@@ -15,10 +15,10 @@
 | App | Estado real |
 |---|---|
 | **Build** | `turbo run build` compila las 6 apps (corregido en PR #12: `loadEnv` en `vite.config.js`, `lazy`/`Suspense` desde `react`, `packageManager` en la raíz). |
-| **Shell** | Routing + eventBus + navbar funcionales. Sin manejo de sesión/roles global, sin 404 ni `ErrorBoundary`. |
+| **Shell** | Routing + eventBus + navbar funcionales. `ProtectedRoute` en `/cart`, `/orders/*` y `/admin/*`. Falta sesión en el navbar, 404 y `ErrorBoundary` en las rutas. |
 | **Auth** | Login/Register + JWT decode completos y bien hechos. |
 | **Catalog** | Listado, filtro por categoría y detalle conectados a la API real. Paginación y rango de precio son solo visuales. |
-| **Cart** | UI completa pero **100% mockeada** (`cartService.js` con `setTimeout`), no conectada al backend real ni al `eventBus`. |
+| **Cart** | Conectada al Cart Service real (verificada contra un mock de `cart.yaml`). `CartSync` procesa `CART_ADD_ITEM` desde cualquier página y el badge muestra el total real. |
 | **Orders** | **Solo un placeholder decorativo**, cero lógica. |
 | **Admin** | **Solo un placeholder decorativo**, cero lógica. |
 | **Testing** | **Inexistente** — ni Vitest/Jest ni Testing Library ni Playwright/Cypress en ningún `package.json`. |
@@ -68,11 +68,14 @@ monorepo en los 6 `vite.config.js`), con fallback a `http://localhost:500X`.
 - [ ] Mostrar condicionalmente en el navbar: botón "Iniciar sesión" vs. avatar + menú de usuario + "Cerrar
       sesión", según sesión activa.
 - [ ] Mostrar enlace a `/admin` en el navbar solo si `role` es `ADMIN` o `SUPER_ADMIN`.
-- [ ] Implementar **rutas protegidas** reales (`ProtectedRoute` / `RequireAuth` wrapper) en
-      `AppRouter.jsx` para `/cart`, `/orders/*`, `/admin/*`, en lugar de dejar que cada microfrontend
-      redirija por su cuenta (hoy solo `cart-app` lo hace, ver punto 4).
-- [ ] Añadir un `ErrorBoundary` global alrededor de `<Suspense>` en `shell/src/app/routes/AppRouter.jsx`
-      para capturar fallos de carga de remotos.
+- [x] Implementar **rutas protegidas** (`shell/src/app/routes/ProtectedRoute.jsx`) en `AppRouter.jsx` para
+      `/cart/*`, `/orders/*` y `/admin/*` (este último exige `ADMIN` o `SUPER_ADMIN`). Sin sesión redirige a
+      `/login` con `state.from`.
+      Nota: `ProtectedRoute` importa `authApp/useAuth` de forma estática, así que si `auth-app` no carga, el
+      shell entero falla. Aceptable mientras auth sea obligatorio; revisar junto con el `ErrorBoundary`.
+- [~] Añadir un `ErrorBoundary` global alrededor de `<Suspense>` en `shell/src/app/routes/AppRouter.jsx`
+      para capturar fallos de carga de remotos. Ya existe `RemoteErrorBoundary` (usado para `CartSync` en
+      `MainLayout`); falta envolver las rutas con un fallback visible.
 - [ ] Implementar página **404** para rutas no reconocidas (hoy `path="/*"` cae siempre en `CatalogApp`).
 - [ ] Limpiar código muerto: `shell/src/App.jsx` no se usa (el `main.jsx` monta `AppRouter` directamente) —
       eliminarlo o documentarlo.
@@ -93,38 +96,37 @@ monorepo en los 6 `vite.config.js`), con fallback a `http://localhost:500X`.
 - [ ] Añadir **expiración proactiva de sesión**: hoy `isTokenExpired` solo se verifica reactivamente al
       leer sesión (`auth-app/src/services/authService.js`); falta expulsar al usuario automáticamente
       cuando el token expira mientras navega (con un `setTimeout` basado en `exp`, o interceptor 401).
-- [ ] Redirección post-login: confirmar que respeta un `?redirect=` o `state.from` para volver a la página
-      que motivó el login (ej. usuario intenta agregar al carrito sin sesión).
+- [x] Redirección post-login: `LoginPage` vuelve a `state.from` (lo guarda `ProtectedRoute`) o a `/`.
+      Pendiente menor: catalog redirige a `/login` sin `state.from` al agregar al carrito sin sesión.
 - [ ] Test de decodificación de JWT malformado / sin `role` — cubrir edge cases del `decodeToken`.
 
 ---
 
-## 4. Cart App — brecha crítica
+## 4. Cart App
 
-Actualmente es solo maqueta visual. Hay que conectarlo de punta a punta:
+Conectada de punta a punta. Verificado en el navegador contra un mock local de `cart.yaml`/`catalog.yaml`
+(agregar desde el catálogo, cambiar cantidad, eliminar, vaciar, badge, guard y redirect). **Falta probar
+contra el backend real.**
 
-- [ ] **Reemplazar `cartService.js` mockeado por integración real** contra `docs/openapi/cart.yaml`
-      (`GET /cart`, `POST /cart/items`, `PUT /cart/items/{productId}`, `DELETE /cart/items/{productId}`,
-      `DELETE /cart`), siguiendo el mismo patrón `fetch` + `parseResponse` que ya usa `catalog-app`.
-- [ ] Añadir header `Authorization: Bearer <token>` en todas las llamadas (usando
-      `authApp/authService.getToken()`), ya que el carrito requiere sesión.
-- [ ] **Suscribir `cart-app` al evento `CART_ADD_ITEM`** del `eventBus` — hoy `catalog-app` emite el evento
-      (`catalog-app/src/pages/ProductDetailPage.jsx`) y el shell solo lo usa para el badge visual
-      (`shell/src/core/events/useCartBadge.js`); **`cart-app` nunca escucha ese evento**, por lo que agregar
-      un producto desde el catálogo nunca llega a `POST /cart/items`. Este es el bug de integración más
-      importante del proyecto.
-- [ ] Declarar `shellApp` como remote en `cart-app/vite.config.js` (hoy solo declara `authApp`) para poder
-      importar `shellApp/eventBus`.
-- [ ] Sustituir el guard de sesión ad-hoc en `CartPage.jsx` por el `ProtectedRoute` compartido del shell
-      (punto 2).
-- [ ] Implementar botón "Vaciar carrito" (`DELETE /cart`) — existe en el roadmap y en el OpenAPI pero no en
-      la UI.
-- [ ] Implementar el CTA "Proceder al Checkout" que navegue a `orders-app` pasando el carrito activo.
-- [ ] Reemplazar imágenes `via.placeholder.com` por manejo real de `image` del producto (o un placeholder
-      local, ya que `placeholder.com` es un servicio externo poco confiable para producción).
-- [ ] Sincronizar el contador del navbar (`useCartBadge`) con el `total` real devuelto por `GET /cart` al
-      montar el shell, no solo con eventos incrementales — hoy si el usuario recarga la página el contador
-      viene de `localStorage`, que puede desincronizarse del backend.
+- [x] **`cartService.js` integrado** contra `docs/openapi/cart.yaml` (`GET /cart`, `POST /cart/items`,
+      `PUT /cart/items/{productId}`, `DELETE /cart/items/{productId}`, `DELETE /cart`) con el patrón
+      `fetch` + `parseResponse`. Como la API no documenta el cuerpo de las escrituras, tras cada acción se
+      vuelve a pedir `GET /cart`.
+- [x] Header `Authorization: Bearer <token>` en todas las llamadas (`authApp/authService.getToken()`). Un 401
+      muestra "Tu sesión expiró"; el cierre de sesión automático queda para el interceptor global (§2).
+- [x] **`CART_ADD_ITEM` procesado**: `cart-app` expone `cartApp/CartSync`, que el shell monta en
+      `MainLayout`. Escucha el evento en cualquier página, llama a `POST /cart/items` y muestra un aviso si
+      falla. Usa constantes propias sobre `window` (`src/services/cartEvents.js`) en lugar de importar
+      `shellApp/eventBus`, para no crear otra dependencia circular shell ↔ cart.
+- [x] Guard de sesión ad-hoc de `CartPage.jsx` sustituido por el `ProtectedRoute` del shell.
+- [x] Botón "Vaciar carrito" (`DELETE /cart`) y botón "Eliminar" por ítem.
+- [~] CTA "Proceder al Checkout": navega a `/orders/checkout`. La página la construye Orders App (§5), que
+      lee el carrito activo del backend (no se pasa por estado).
+- [x] Nombres de producto: la API del carrito no los devuelve (§12), así que `productService.js` los completa
+      con `GET /products/{id}` (con caché en memoria). Eliminar cuando el backend enriquezca la respuesta.
+      Se quitaron los datos mock y las imágenes de `via.placeholder.com`; se usa un icono genérico.
+- [x] Badge del navbar sincronizado con el backend: Cart App emite `CART_UPDATED` (`{ itemCount }`) al
+      cargar, tras cada cambio y al cambiar la sesión; `useCartBadge` solo refleja ese valor.
 
 ---
 
@@ -147,8 +149,9 @@ Hoy `orders-app/src/OrdersApp.jsx` es 100% decorativo. Replicar la arquitectura 
       habilitado solo si `status === 'CREATED'` (regla 4.3).
 - [ ] Definir subrutas internas con `<Routes>` dentro de `OrdersApp.jsx` (ya está expuesto como
       `/orders/*` en el shell).
-- [ ] Proteger todas las rutas con sesión activa (mismo patrón que cart-app debería usar).
-- [ ] Vaciar/resetear el badge del carrito (`useCartBadge().reset()`) tras crear el pedido exitosamente.
+- [x] Proteger todas las rutas con sesión activa (ya lo hace `ProtectedRoute` en el shell).
+- [ ] Actualizar el badge tras crear el pedido: emitir `CART_UPDATED` con `itemCount: 0` (o recargar el
+      carrito) cuando el backend vacíe el carrito al crear el pedido.
 - [ ] Declarar `authApp` (y `shellApp` si aplica) como remotes en `orders-app/vite.config.js` (hoy no tiene
       ningún remote declarado).
 
@@ -215,7 +218,8 @@ Ningún `package.json` tiene Vitest, Jest, Testing Library, Cypress o Playwright
 - [ ] `useCatalog`/`useProductDetail`: fetch éxito, error, filtro por categoría.
 - [ ] `useCart` (tras conectarlo al backend real): actualización optimista, rollback en error.
 - [ ] `eventBus`: `emit`/`on`/`off` — verificar que el cleanup remueve listeners.
-- [ ] `useCartBadge`: incremento por evento, persistencia en `localStorage`, `reset()`.
+- [ ] `useCartBadge`: refleja `CART_UPDATED`, persistencia en `localStorage`.
+- [ ] `useCart`/`useCartSync`: recarga tras cada acción, errores en `actionError`, `CART_ADD_ITEM` sin sesión se ignora.
 - [ ] Reglas de negocio críticas en frontend (validables sin backend): botón "Agregar al carrito"
       deshabilitado si `product.active === false`; botón "Cancelar pedido" visible solo si
       `status === 'CREATED'`; sección de usuarios visible solo si `role === 'SUPER_ADMIN'`.

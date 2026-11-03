@@ -20,7 +20,8 @@ export default defineConfig(({ mode }) => {
           authApp: env.VITE_AUTH_REMOTE_URL || 'http://localhost:5001/assets/remoteEntry.js',
         },
         exposes: {
-          './CartApp': './src/CartApp.jsx',
+          './CartApp':  './src/CartApp.jsx',
+          './CartSync': './src/components/CartSync.jsx',
         },
         shared: ['react', 'react-dom', 'react-router-dom'],
       }),

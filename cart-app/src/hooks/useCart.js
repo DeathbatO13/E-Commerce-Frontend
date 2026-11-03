@@ -1,32 +1,52 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getCart, updateCartItem, removeCartItem } from '../services/cartService';
+import { getCart, updateCartItem, removeCartItem, clearCart } from '../services/cartService';
+import { enrichCartItems } from '../services/productService';
+import { emitCartUpdated } from '../services/cartEvents';
 
 /**
- * Hook para manejar el estado del carrito.
+ * Carga el carrito del backend, lo enriquece con datos del catálogo y notifica el nuevo total al Shell.
+ *
+ * @returns {Promise<{ userId: string, items: Array<Object>, total: number }>} Carrito listo para la UI
+ * @throws {Error} Si el Cart Service falla
+ * @sideeffects Peticiones HTTP al Cart y Catalog Service; emite `CART_UPDATED`
+ */
+async function loadCart() {
+  const data = await getCart();
+  const items = await enrichCartItems(data?.items ?? []);
+  emitCartUpdated(items);
+  return { ...data, items, total: data?.total ?? 0 };
+}
+
+/**
+ * Hook custom useCart.
+ * Propósito: Gestionar el carrito del usuario contra el Cart Service. Tras cada acción se vuelve a
+ * pedir el carrito, porque la API no documenta el cuerpo de las respuestas de escritura.
+ *
+ * @returns {{
+ *   cart: Object|null,
+ *   loading: boolean,
+ *   error: string|null,
+ *   actionError: string|null,
+ *   pending: boolean,
+ *   updateQuantity: function(string, number, number): Promise<void>,
+ *   removeItem: function(string): Promise<void>,
+ *   emptyCart: function(): Promise<void>,
+ * }} Estado del carrito y acciones
+ * @throws {None} Errores atrapados y expuestos en `error` (carga) o `actionError` (acciones)
+ * @sideeffects Peticiones HTTP al backend; emite `CART_UPDATED` tras cada cambio
  */
 export function useCart() {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const fetchCart = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getCart();
-      setCart(data);
-    } catch (err) {
-      setError(err.message || 'Error al cargar el carrito');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [actionError, setActionError] = useState(null);
+  const [pending, setPending] = useState(false);
 
   // Carga inicial: `loading` ya arranca en true, así que el efecto solo actualiza estado al resolver la promesa.
   useEffect(() => {
     let cancelled = false;
 
-    getCart()
+    loadCart()
       .then(data => {
         if (!cancelled) setCart(data);
       })
@@ -40,47 +60,43 @@ export function useCart() {
     return () => { cancelled = true; };
   }, []);
 
-  const updateQuantity = async (productId, currentQuantity, change) => {
+  /**
+   * Ejecuta una acción de escritura y recarga el carrito.
+   *
+   * @param {function(): Promise<void>} action - Llamada al servicio
+   * @returns {Promise<void>}
+   */
+  const runAction = useCallback(async (action) => {
+    setPending(true);
+    setActionError(null);
+    try {
+      await action();
+      setCart(await loadCart());
+    } catch (err) {
+      setActionError(err.message);
+    } finally {
+      setPending(false);
+    }
+  }, []);
+
+  const updateQuantity = (productId, currentQuantity, change) => {
     const newQuantity = currentQuantity + change;
-    
-    if (newQuantity < 1) return;
-
-    try {
-      await updateCartItem(productId, newQuantity);
-      // Actualización optimista
-      setCart(prev => {
-        if (!prev) return prev;
-        const newItems = prev.items.map(item => 
-          item.productId === productId ? { ...item, quantity: newQuantity } : item
-        );
-        const newTotal = newItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-        return { ...prev, items: newItems, total: newTotal };
-      });
-    } catch (err) {
-      console.error('Error al actualizar cantidad', err);
-    }
+    if (newQuantity < 1) return Promise.resolve();
+    return runAction(() => updateCartItem(productId, newQuantity));
   };
 
-  const removeItem = async (productId) => {
-    try {
-      await removeCartItem(productId);
-      setCart(prev => {
-        if (!prev) return prev;
-        const newItems = prev.items.filter(item => item.productId !== productId);
-        const newTotal = newItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-        return { ...prev, items: newItems, total: newTotal };
-      });
-    } catch (err) {
-      console.error('Error al eliminar ítem', err);
-    }
-  };
+  const removeItem = (productId) => runAction(() => removeCartItem(productId));
+
+  const emptyCart = () => runAction(() => clearCart());
 
   return {
     cart,
     loading,
     error,
+    actionError,
+    pending,
     updateQuantity,
     removeItem,
-    refetch: fetchCart
+    emptyCart,
   };
 }

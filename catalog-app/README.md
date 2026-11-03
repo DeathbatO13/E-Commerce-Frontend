@@ -43,7 +43,7 @@ La paginación y el filtro por rango de precio son solo visuales: la API no los 
 |---|---|---|
 | `ecommerce:cart-add-item` (`CART_ADD_ITEM`) | **Emite** al agregar al carrito, solo con sesión activa (sin sesión redirige a `/login`) | `{ productId, quantity: 1 }` |
 
-Hoy solo el badge del shell escucha este evento: `cart-app` todavía no lo procesa.
+Lo procesa `cartApp/CartSync` (montado por el shell en todas las páginas), que llama a `POST /cart/items`.
 
 ## Variables de entorno
 

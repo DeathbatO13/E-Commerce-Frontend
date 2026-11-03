@@ -22,7 +22,7 @@ El Frontend de esta aplicación está construido utilizando una arquitectura mod
 | **Shell** | 5000 | Orquestador: layout, navegación global y carga de remotos. | 🟡 Parcial | [shell/](shell/README.md) |
 | **Auth App** | 5001 | Inicio de sesión, registro y sesión (JWT). | 🟢 Completa | [auth-app/](auth-app/README.md) |
 | **Catalog App** | 5002 | Listado de productos, categorías y detalle. | 🟢 Completa | [catalog-app/](catalog-app/README.md) |
-| **Cart App** | 5003 | Carrito del usuario autenticado. | 🟡 UI sobre datos mock | [cart-app/](cart-app/README.md) |
+| **Cart App** | 5003 | Carrito del usuario autenticado. | 🟢 Completa (verificada con mock) | [cart-app/](cart-app/README.md) |
 | **Orders App** | 5004 | Checkout, pago simulado e historial de pedidos. | 🔴 Placeholder | [orders-app/](orders-app/README.md) |
 | **Admin App** | 5005 | Panel de administración de catálogo, pedidos y usuarios. | 🔴 Placeholder | [admin-app/](admin-app/README.md) |
 

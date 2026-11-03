@@ -1,6 +1,7 @@
 import { Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
 import MainLayout from "../layout/MainLayout";
+import ProtectedRoute from "./ProtectedRoute";
 
 // Microfrontends cargados dinámicamente vía Module Federation
 const AuthApp     = lazy(() => import('authApp/AuthApp'));
@@ -8,6 +9,9 @@ const CatalogApp  = lazy(() => import('catalogApp/CatalogApp'));
 const CartApp     = lazy(() => import('cartApp/CartApp'));
 const OrdersApp   = lazy(() => import('ordersApp/OrdersApp'));
 const AdminApp    = lazy(() => import('adminApp/AdminApp'));
+
+/** Roles con acceso al panel de administración (regla 2.1). */
+const ADMIN_ROLES = ['ADMIN', 'SUPER_ADMIN'];
 
 /**
  * Componente LoadingFallback — Pantalla de carga genérica.
@@ -48,9 +52,9 @@ function AppRouter() {
         <Route path="/*" element={
           <MainLayout>
             <Routes>
-              <Route path="/cart"      element={<CartApp />} />
-              <Route path="/orders/*"  element={<OrdersApp />} />
-              <Route path="/admin/*"   element={<AdminApp />} />
+              <Route path="/cart/*"    element={<ProtectedRoute><CartApp /></ProtectedRoute>} />
+              <Route path="/orders/*"  element={<ProtectedRoute><OrdersApp /></ProtectedRoute>} />
+              <Route path="/admin/*"   element={<ProtectedRoute roles={ADMIN_ROLES}><AdminApp /></ProtectedRoute>} />
               <Route path="/"          element={<CatalogApp />} />
               <Route path="/*"         element={<CatalogApp />} />
             </Routes>
