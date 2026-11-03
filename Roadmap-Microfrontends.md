@@ -13,10 +13,10 @@ Basado en la arquitectura hexagonal del backend, el sistema de Microfrontends (M
 
 | Fase | App | Avance | Resumen |
 |---|---|---|---|
-| 1 | Shell | 🟡 Parcial | Router, MF y bus de eventos listos. Falta sesión en el header, rutas protegidas, 404 y UI Kit. |
+| 1 | Shell | 🟡 Parcial | Router, MF, bus de eventos y rutas protegidas listos. Falta sesión en el header, 404 y UI Kit. |
 | 2 | Auth App | 🟢 Completa | Login, registro, JWT y `useAuthSession` expuestos. |
 | 3 | Catalog App | 🟢 Completa | Listado, filtro por categoría y detalle conectados a la API. |
-| 4 | Cart App | 🟡 Parcial | UI lista pero 100% mockeada; no escucha `CART_ADD_ITEM`. |
+| 4 | Cart App | 🟢 Completa* | Conectada a la API y a `CART_ADD_ITEM`. *Verificada contra un mock; falta probarla con el backend real. |
 | 5 | Orders App | 🔴 Pendiente | Solo placeholder. |
 | 6 | Admin App | 🔴 Pendiente | Solo placeholder. |
 | 7 | Calidad y testing | 🔴 Pendiente | Sin tests, sin interceptor de errores. |
@@ -34,13 +34,13 @@ El **Shell App** es la aplicación anfitriona que orquesta la carga de todos los
 - [x] Parametrizar las URLs de los remotes por entorno (`loadEnv` + `.env` en la raíz, ver `.env.example`).
 - [~] Definir e implementar el sistema de enrutamiento principal (`react-router-dom`).
   - Hecho: rutas `/login`, `/register`, `/cart`, `/orders/*`, `/admin/*` y catálogo en `/`.
-  - Falta: página 404 (hoy cualquier ruta desconocida cae en `CatalogApp`), `ErrorBoundary` si un remoto no carga, `/cart` → `/cart/*`.
+  - Falta: página 404 (hoy cualquier ruta desconocida cae en `CatalogApp`) y `ErrorBoundary` en las rutas si un remoto no carga.
 - [ ] **UI Kit Compartido (Shared Library):** Crear un paquete interno o design system con Tailwind CSS para componentes comunes (Botones, Inputs, Modales, Tablas, Headers) y un preset de Tailwind común.
 - [x] Implementar un bus de eventos (`CustomEvents`) para comunicar remotos (`shell/src/core/events/eventBus.js`, expuesto como `shellApp/eventBus`).
 - [~] Integrar un Header global en el Shell con la navegación principal, acceso a login/perfil y el "Mini Cart".
-  - Hecho: navbar global con badge del carrito (`useCartBadge`).
+  - Hecho: navbar global con badge del carrito sincronizado con el backend (`useCartBadge` + `CART_UPDATED`).
   - Falta: mostrar login vs. avatar/logout según sesión, enlace a `/admin` por rol, buscador funcional, rutas reales de `Categories`/`About Us`.
-- [ ] Rutas protegidas (`ProtectedRoute`) para `/cart`, `/orders/*` y `/admin/*`, con redirección a `/login` y retorno a la página de origen.
+- [x] Rutas protegidas (`ProtectedRoute`) para `/cart/*`, `/orders/*` y `/admin/*` (rol `ADMIN`/`SUPER_ADMIN`), con redirección a `/login` y retorno a la página de origen.
 
 ---
 
@@ -59,7 +59,7 @@ Este microfrontend maneja el registro, inicio de sesión y almacenamiento de los
   - [x] Integrar llamada a `POST /auth/register` (crea usuario con rol `CLIENT`).
   - [x] Flujo de redirección al login post-registro.
 - [x] Exponer funciones utilitarias o Hooks para verificar si hay sesión activa, extraer roles del JWT (`CLIENT`, `ADMIN`, `SUPER_ADMIN`) y ejecutar logout.
-- [ ] Redirección post-login a la página de origen (`?redirect=` o `state.from`); hoy siempre vuelve a `/`.
+- [x] Redirección post-login a la página de origen (`state.from`).
 - [ ] Expiración proactiva de sesión cuando el token vence mientras se navega.
 
 ---
@@ -89,17 +89,17 @@ Gestiona exclusivamente el carrito de un usuario autenticado.
 
 ### Tareas (Cart App):
 - [x] Inicializar el microfrontend `cart-app`.
-- [~] Proteger rutas para requerir autenticación: existe un guard propio en `CartPage`; debe reemplazarse por el `ProtectedRoute` del Shell.
-- [~] **Contexto del Carrito / Mini Cart**:
-  - [ ] Integrar `GET /cart` (hoy `cartService.js` devuelve datos mock).
-  - [~] Mini Cart en el header: el badge existe en el Shell, pero cuenta eventos locales, no el total real del backend.
-- [~] **Página del Carrito (`/cart`)**:
-  - [x] Listado de ítems `CartItem` con totalización (sobre datos mock).
-  - [ ] Integrar adición: `POST /cart/items`, escuchando el evento `CART_ADD_ITEM` que emite Catalog App (**hoy nadie lo escucha**).
-  - [~] Integrar modificación: `PUT /cart/items/{productId}` (UI lista, servicio mock).
-  - [~] Integrar eliminación individual `DELETE /cart/items/{productId}` (botón en la UI listo, servicio mock).
-  - [ ] Integrar vaciado global `DELETE /cart` (falta el botón y el servicio).
-- [~] Botón de CTA "Proceder al Checkout": existe en la UI pero no navega a Orders App.
+- [x] Proteger rutas para requerir autenticación (`ProtectedRoute` del Shell).
+- [x] **Contexto del Carrito / Mini Cart**:
+  - [x] Integrar `GET /cart`.
+  - [x] Mini Cart en el header: badge con el total real (Cart App emite `CART_UPDATED`).
+- [x] **Página del Carrito (`/cart`)**:
+  - [x] Listado de ítems `CartItem` con totalización (nombres completados con `GET /products/{id}`, ver backlog §12).
+  - [x] Integrar adición: `POST /cart/items`, escuchando `CART_ADD_ITEM` desde cualquier página con `cartApp/CartSync`.
+  - [x] Integrar modificación: `PUT /cart/items/{productId}`.
+  - [x] Integrar eliminación individual `DELETE /cart/items/{productId}`.
+  - [x] Integrar vaciado global `DELETE /cart`.
+- [x] Botón de CTA "Proceder al Checkout": navega a `/orders/checkout` (la página es parte de la Fase 5).
 
 ---
 

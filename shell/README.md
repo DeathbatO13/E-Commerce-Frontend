@@ -14,13 +14,20 @@ principal y carga en runtime los microfrontends remotos vía Module Federation.
 | Ruta | Remoto montado | Layout |
 |---|---|---|
 | `/login`, `/register` | `authApp/AuthApp` | Pantalla completa (sin `MainLayout`) |
-| `/cart` | `cartApp/CartApp` | `MainLayout` |
-| `/orders/*` | `ordersApp/OrdersApp` | `MainLayout` |
-| `/admin/*` | `adminApp/AdminApp` | `MainLayout` |
+| `/cart/*` | `cartApp/CartApp` | `MainLayout` · requiere sesión |
+| `/orders/*` | `ordersApp/OrdersApp` | `MainLayout` · requiere sesión |
+| `/admin/*` | `adminApp/AdminApp` | `MainLayout` · requiere rol `ADMIN` o `SUPER_ADMIN` |
 | `/` y cualquier otra ruta | `catalogApp/CatalogApp` | `MainLayout` |
 
-Definidas en [`src/app/routes/AppRouter.jsx`](src/app/routes/AppRouter.jsx). Todavía no hay página 404, rutas
-protegidas ni `ErrorBoundary` para cuando un remoto no carga.
+Definidas en [`src/app/routes/AppRouter.jsx`](src/app/routes/AppRouter.jsx).
+
+- **Rutas protegidas** ([`ProtectedRoute.jsx`](src/app/routes/ProtectedRoute.jsx)): sin sesión redirige a
+  `/login` guardando la ruta en `state.from` (auth-app vuelve ahí tras el login); con sesión pero sin el rol
+  requerido redirige a `/`. Es validación de UI: el backend sigue siendo la autoridad.
+- **`CartSync`**: `MainLayout` monta `cartApp/CartSync` en todas las páginas para procesar `CART_ADD_ITEM`.
+  Va dentro de [`RemoteErrorBoundary`](src/app/components/RemoteErrorBoundary.jsx): si cart-app no carga, el
+  resto del layout sigue funcionando.
+- Pendiente: página 404 y `ErrorBoundary` con fallback visible alrededor de las rutas.
 
 ## Module Federation
 
@@ -50,8 +57,9 @@ El bus ([`eventBus.js`](src/core/events/eventBus.js)) usa `CustomEvent` sobre `w
 
 | Evento | Constante | Rol del shell |
 |---|---|---|
-| `ecommerce:cart-add-item` | `CART_ADD_ITEM` | **Escucha**: `useCartBadge` incrementa el contador del navbar (persistido en `localStorage` como `ecommerce.cartCount`). |
-| `ecommerce:auth-session-change` | `AUTH_SESSION_CHANGE` | Definido, pero el navbar todavía no lo escucha. |
+| `ecommerce:cart-add-item` | `CART_ADD_ITEM` | No lo escucha: lo emite Catalog App y lo procesa `cartApp/CartSync`. |
+| `ecommerce:cart-updated` | `CART_UPDATED` | **Escucha**: `useCartBadge` muestra `itemCount` en el navbar (último valor en `localStorage` como `ecommerce.cartCount`). |
+| `ecommerce:auth-session-change` | `AUTH_SESSION_CHANGE` | `ProtectedRoute` reacciona a él vía `authApp/useAuth`; el navbar todavía no. |
 
 ## Variables de entorno
 

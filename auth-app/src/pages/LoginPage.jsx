@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useLogin } from '../hooks/useAuth'
 import Input        from '../components/ui/Input'
 import PasswordInput from '../components/ui/PasswordInput'
@@ -16,16 +16,18 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
  * 
  * @returns {JSX.Element} Formulario de inicio de sesión
  * @throws {None}
- * @sideeffects Interactúa con `useLogin` para lanzar la petición de red y navegar en caso de éxito.
+ * @sideeffects Interactúa con `useLogin` para lanzar la petición de red y, en caso de éxito, navegar a la ruta de origen (`state.from`) o a `/`.
  */
 function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [validationError, setValidationError] = useState(null)
 
   const { handleLogin, loading, error } = useLogin({
-    onSuccess: () => navigate('/'),
+    // Vuelve a la página que pidió el login (la guarda el ProtectedRoute del Shell en state.from)
+    onSuccess: () => navigate(location.state?.from?.pathname || '/', { replace: true }),
   })
 
   function onSubmit(e) {

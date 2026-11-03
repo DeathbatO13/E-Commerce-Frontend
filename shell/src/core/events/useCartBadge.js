@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react'
-import { on, CART_ADD_ITEM } from './eventBus'
+import { on, CART_UPDATED } from './eventBus'
 
 const CART_COUNT_KEY = 'ecommerce.cartCount'
 
 /**
  * Hook custom useCartBadge.
- * Propósito: Mantener un contador reactivo de ítems agregados al carrito,
- * persistiéndolo en localStorage para que sobreviva recargas de página.
- * Escucha el evento `CART_ADD_ITEM` del bus de eventos para incrementarse
- * cada vez que un producto se agrega desde cualquier microfrontend.
+ * Propósito: Mostrar en el navbar la cantidad real de unidades del carrito.
+ * Escucha `CART_UPDATED`, que Cart App emite con el total del backend cada vez que lo conoce.
+ * El último valor se guarda en localStorage solo para pintar algo en la primera carga,
+ * antes de que Cart App confirme el total.
  *
- * @returns {{ count: number, reset: function }} Contador actual y función para resetearlo
+ * @returns {{ count: number }} Unidades en el carrito
  * @sideeffects Lee y escribe en localStorage. Suscribe y desuscribe del eventBus.
  */
 export function useCartBadge() {
@@ -21,35 +21,19 @@ export function useCartBadge() {
 
   useEffect(() => {
     /**
-     * Handler para el evento de agregar al carrito.
+     * Handler para el evento de carrito actualizado.
      *
-     * @param {CustomEvent} event - Evento con payload `{ productId, quantity }`
+     * @param {CustomEvent} event - Evento con payload `{ itemCount }`
      * @returns {void}
      */
-    function handleCartAdd(event) {
-      const quantity = event.detail?.quantity ?? 1
-      setCount(previous => {
-        const next = previous + quantity
-        localStorage.setItem(CART_COUNT_KEY, String(next))
-        return next
-      })
+    function handleCartUpdated(event) {
+      const next = event.detail?.itemCount ?? 0
+      localStorage.setItem(CART_COUNT_KEY, String(next))
+      setCount(next)
     }
 
-    const cleanup = on(CART_ADD_ITEM, handleCartAdd)
-    return cleanup
+    return on(CART_UPDATED, handleCartUpdated)
   }, [])
 
-  /**
-   * Resetea el contador del carrito a cero.
-   * Llamar al vaciar el carrito o al finalizar una compra.
-   *
-   * @returns {void}
-   * @sideeffects Escribe en localStorage
-   */
-  function reset() {
-    setCount(0)
-    localStorage.removeItem(CART_COUNT_KEY)
-  }
-
-  return { count, reset }
+  return { count }
 }

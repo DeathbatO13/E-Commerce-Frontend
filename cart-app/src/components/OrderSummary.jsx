@@ -3,9 +3,12 @@
  * Propósito: Muestra el resumen del pedido (subtotal, envío, total).
  *
  * @param {Object} props
- * @param {number} props.subtotal
+ * @param {number} props.subtotal - Total del carrito según el backend
+ * @param {function(): void} props.onCheckout - Acción del botón "Proceder al Checkout"
+ * @param {boolean} [props.disabled=false] - Deshabilita el botón mientras hay una acción en curso
+ * @returns {JSX.Element} Tarjeta de resumen
  */
-function OrderSummary({ subtotal }) {
+function OrderSummary({ subtotal, onCheckout, disabled = false }) {
   const formattedSubtotal = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(subtotal);
   // Asumiendo envío gratis o calculado después para igualar el mockup
   const total = subtotal; 
@@ -32,7 +35,7 @@ function OrderSummary({ subtotal }) {
         <span className="order-summary-total-value">{formattedTotal}</span>
       </div>
       
-      <button className="order-summary-checkout-btn">
+      <button className="order-summary-checkout-btn" onClick={onCheckout} disabled={disabled}>
         Proceder al Checkout
         <span className="material-symbols-outlined">arrow_forward</span>
       </button>

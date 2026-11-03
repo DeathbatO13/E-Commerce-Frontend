@@ -19,8 +19,16 @@
 export const CART_ADD_ITEM = 'ecommerce:cart-add-item'
 
 /**
+ * Evento emitido por Cart App cada vez que conoce el estado real del carrito en el backend
+ * (al cargar, tras agregar/editar/eliminar, o al cambiar la sesión).
+ * Payload: `{ itemCount: number }` (suma de cantidades; 0 sin sesión)
+ * @type {string}
+ */
+export const CART_UPDATED = 'ecommerce:cart-updated'
+
+/**
  * Evento emitido cuando cambia la sesión del usuario (login / logout).
- * Re-exportado desde authService para tener un único punto de verdad.
+ * Debe coincidir con `AUTH_SESSION_EVENT` de `authApp/authService`, que es quien lo emite.
  * Payload: `{ isAuthenticated: boolean, role: string | null, token: string | null }`
  * @type {string}
  */
