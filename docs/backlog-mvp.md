@@ -8,7 +8,7 @@
 > OpenAPI de `docs/openapi/`.
 >
 > El [Roadmap](../Roadmap-Microfrontends.md) define *qué* se entrega por fase; este backlog es el desglose
-> técnico. Última sincronización con el código: 2026-10-28.
+> técnico. Última sincronización con el código: 2026-11-03.
 
 ## Diagnóstico rápido
 
@@ -16,10 +16,10 @@
 |---|---|
 | **Build** | `turbo run build` compila las 6 apps (corregido en PR #12: `loadEnv` en `vite.config.js`, `lazy`/`Suspense` desde `react`, `packageManager` en la raíz). |
 | **Shell** | Routing + eventBus + navbar funcionales. `ProtectedRoute` en `/cart`, `/orders/*` y `/admin/*`. Falta sesión en el navbar, 404 y `ErrorBoundary` en las rutas. |
-| **Auth** | Login/Register + JWT decode completos y bien hechos. |
+| **Auth** | Login/Register + JWT decode completos. El rol se lee del claim `roles` (array) que firma el backend. |
 | **Catalog** | Listado, filtro por categoría y detalle conectados a la API real. Paginación y rango de precio son solo visuales. |
 | **Cart** | Conectada al Cart Service real (verificada contra un mock de `cart.yaml`). `CartSync` procesa `CART_ADD_ITEM` desde cualquier página y el badge muestra el total real. |
-| **Orders** | **Solo un placeholder decorativo**, cero lógica. |
+| **Orders** | Checkout, pago simulado, historial y detalle (con cancelación) conectados a Order y Payment Service. Verificado contra un mock; falta el backend real (CORS). |
 | **Admin** | **Solo un placeholder decorativo**, cero lógica. |
 | **Testing** | **Inexistente** — ni Vitest/Jest ni Testing Library ni Playwright/Cypress en ningún `package.json`. |
 | **CI/CD** | No existe carpeta `.github/`. |
@@ -98,7 +98,10 @@ monorepo en los 6 `vite.config.js`), con fallback a `http://localhost:500X`.
       cuando el token expira mientras navega (con un `setTimeout` basado en `exp`, o interceptor 401).
 - [x] Redirección post-login: `LoginPage` vuelve a `state.from` (lo guarda `ProtectedRoute`) o a `/`.
       Pendiente menor: catalog redirige a `/login` sin `state.from` al agregar al carrito sin sesión.
-- [ ] Test de decodificación de JWT malformado / sin `role` — cubrir edge cases del `decodeToken`.
+- [x] Rol leído del claim real: Auth Service firma `roles` (array), no `role`. `getRole()` devolvía siempre
+      `null` con el backend real, y ni un ADMIN podía entrar a `/admin`. Ahora `getRoles()` devuelve el array
+      y `getRole()` el de mayor jerarquía (`SUPER_ADMIN` > `ADMIN` > `CLIENT`); la sesión expone ambos.
+- [ ] Test de decodificación de JWT malformado / sin `roles` — cubrir edge cases del `decodeToken`.
 
 ---
 
@@ -120,8 +123,8 @@ contra el backend real.**
       `shellApp/eventBus`, para no crear otra dependencia circular shell ↔ cart.
 - [x] Guard de sesión ad-hoc de `CartPage.jsx` sustituido por el `ProtectedRoute` del shell.
 - [x] Botón "Vaciar carrito" (`DELETE /cart`) y botón "Eliminar" por ítem.
-- [~] CTA "Proceder al Checkout": navega a `/orders/checkout`. La página la construye Orders App (§5), que
-      lee el carrito activo del backend (no se pasa por estado).
+- [x] CTA "Proceder al Checkout": navega a `/orders/checkout` (Orders App, §5), que lee el carrito activo
+      del backend (no se pasa por estado).
 - [x] Nombres de producto: la API del carrito no los devuelve (§12), así que `productService.js` los completa
       con `GET /products/{id}` (con caché en memoria). Eliminar cuando el backend enriquezca la respuesta.
       Se quitaron los datos mock y las imágenes de `via.placeholder.com`; se usa un icono genérico.
@@ -130,30 +133,31 @@ contra el backend real.**
 
 ---
 
-## 5. Orders App — no implementado (Fase 5 completa)
+## 5. Orders App
 
-Hoy `orders-app/src/OrdersApp.jsx` es 100% decorativo. Replicar la arquitectura limpia ya usada en
-`catalog-app`/`cart-app` (`pages/`, `hooks/`, `services/`, `components/`):
+Implementada con la misma arquitectura que `cart-app` (`pages/`, `hooks/`, `services/`, `components/`).
+Verificada en el navegador contra un mock local que replica el backend (crear, rechazar y aprobar pago,
+cancelar, historial, carrito vacío). **Falta probar contra el backend real** (ver CORS en §12).
 
-- [ ] `services/ordersService.js` contra `docs/openapi/order.yaml`: `POST /orders`, `GET /orders`,
-      `GET /orders/{id}`.
-- [ ] `services/paymentService.js` contra `docs/openapi/payment.yaml`: `POST /payments/process`.
-- [ ] Página **Checkout** (`/orders/checkout` o similar): formulario de dirección de envío + confirmación,
-      crea el pedido desde el carrito activo (`POST /orders`).
-- [ ] Página **Pago simulado**: pantalla post-creación de pedido que llama `POST /payments/process` con
-      `orderId`/`amount`, y refleja resultado aprobado/rechazado (regla de negocio 5.1/5.2 de
-      `docs/busines-rules.md`).
-- [ ] Página **Historial de pedidos** (`/orders`): `GET /orders`, tabla/lista con estado
-      (`CREATED`/`PAID`/`CANCELLED`) y fecha.
-- [ ] Página **Detalle de pedido** (`/orders/{id}`): items, totales, estado, y botón "Cancelar pedido"
-      habilitado solo si `status === 'CREATED'` (regla 4.3).
-- [ ] Definir subrutas internas con `<Routes>` dentro de `OrdersApp.jsx` (ya está expuesto como
-      `/orders/*` en el shell).
-- [x] Proteger todas las rutas con sesión activa (ya lo hace `ProtectedRoute` en el shell).
-- [ ] Actualizar el badge tras crear el pedido: emitir `CART_UPDATED` con `itemCount: 0` (o recargar el
-      carrito) cuando el backend vacíe el carrito al crear el pedido.
-- [ ] Declarar `authApp` (y `shellApp` si aplica) como remotes en `orders-app/vite.config.js` (hoy no tiene
-      ningún remote declarado).
+- [x] `services/ordersService.js` (`order.yaml`): `POST /orders`, `GET /orders`, `GET /orders/{id}` y
+      `POST /orders/{id}/cancel`. `POST /orders` responde `201` sin cuerpo; el id se toma de la cabecera
+      `Location` (el backend la expone por CORS). Si no se pudiera leer, se toma el pedido `CREATED` más
+      reciente de `GET /orders`.
+- [x] `services/paymentService.js` (`payment.yaml` v1.1.0): `POST /payments/process` con `orderId`, `amount`
+      (debe ser igual al total, el backend lo valida) y `simulateResult` (`APPROVED`/`REJECTED`).
+- [x] **Checkout** (`/orders/checkout`): resumen del carrito (`GET /cart` + nombres del catálogo) y
+      dirección de envío. Tras crear el pedido emite `CART_UPDATED` con `itemCount: 0`, porque el backend
+      vacía el carrito.
+- [x] **Pago simulado** (`/orders/:id/pay`): aprobar → `PAID` y vuelve al detalle con aviso; rechazar →
+      sigue `CREATED` y se puede reintentar (reglas 5.1/5.2). Solo admite pedidos `CREATED`.
+- [x] **Historial** (`/orders`): lista con estado, fecha, unidades y total, del más reciente al más antiguo.
+- [x] **Detalle** (`/orders/:id`): ítems, total y estado. Pagar y "Cancelar pedido" solo si
+      `status === 'CREATED'` (regla 4.3); cancelar pide confirmación.
+- [x] Subrutas internas con `<Routes>` en `OrdersApp.jsx`; protegidas por `ProtectedRoute` en el shell.
+- [x] `authApp` declarado como remote en `orders-app/vite.config.js` (con `loadEnv`).
+- [x] Acceso desde el navbar del shell (icono "Mis pedidos").
+- [ ] `OrderResponse` no incluye `address`, así que el detalle no muestra la dirección de envío (§12).
+- [ ] Nombres de producto: igual que en el carrito, se completan con `GET /products/{id}` (§12).
 
 ---
 
@@ -330,18 +334,26 @@ No existe `.github/workflows/`.
 Huecos en `docs/openapi/` y en las reglas de negocio que bloquean o condicionan el frontend. Los contratos
 son propiedad del backend: se deben acordar allí y luego reflejar aquí.
 
-- [ ] `POST /orders` (`order.yaml`) responde `201` **sin cuerpo**: el frontend no recibe el `orderId` que
-      necesita para `POST /payments/process`. Documentar que devuelve `OrderResponse`.
-- [ ] No existe endpoint para **cancelar pedidos**, aunque la regla 4.3 lo contempla y el detalle de pedido
-      lo necesita (ej. `POST /orders/{id}/cancel`).
+- [~] `POST /orders` responde `201` sin cuerpo, con `Location: /orders/{id}` (expuesta por CORS). El
+      frontend ya lo usa, pero `order.yaml` del backend no documenta la cabecera. Pedir que la documente.
+- [~] Cancelar pedidos: existe `POST /orders/{id}/cancel` (`200`; `409` si está pagado) y el frontend lo usa,
+      pero no está en `order.yaml`. Pedir que se documente.
+- [ ] **CORS del backend**: `CORS_ALLOWED_ORIGINS` (en el `.env` del backend) solo admite
+      `http://localhost:5173` y `http://localhost:5001`. El shell corre en `http://localhost:5000`, así que el
+      navegador bloquea todas las llamadas (preflight `403`). Agregar `http://localhost:5000` en local y los
+      dominios de Vercel en producción.
+- [ ] `OrderResponse` no incluye `address`: el detalle de pedido no puede mostrar la dirección de envío.
+- [~] Claims del JWT: el backend firma `sub` (UUID), `email`, `roles` (array) y `exp`. El frontend ya lee
+      `roles`; falta documentarlos en `auth.yaml`.
+- [ ] **Rutas de usuarios (Fase 6)**: el código del Auth Service expone `GET /admin/users` y
+      `POST /admin/users/{id}/role?role=ADMIN|CLIENT`, pero `auth.yaml` documenta `GET /users` y
+      `PUT /users/{id}/role`. `POST /users` ya no existe. Confirmar cuál es el contrato antes de Admin App.
 - [ ] `CartItem` (`cart.yaml`) solo tiene `productId`, `quantity` y `price`; la UI del carrito muestra nombre
       e imagen. Decidir si el Cart Service enriquece la respuesta o si el frontend consulta el catálogo.
 - [ ] `ProductResponse` no tiene campo de imagen y `GET /products` no soporta paginación, pero la UI muestra
       ambas cosas.
-- [ ] Los claims del JWT (`role`, `exp`, `sub`) no están documentados en `auth.yaml`, y el frontend depende
-      de `role` y `exp`.
-- [ ] **Decisión de negocio:** la regla 6.2 permite a `ADMIN` listar usuarios, pero el roadmap restringía toda
-      la gestión de usuarios a `SUPER_ADMIN`. Definir cuál aplica en Admin App.
+- [x] **Decisión de negocio** (resuelta por el backend): `ADMIN` y `SUPER_ADMIN` listan usuarios; solo
+      `SUPER_ADMIN` cambia roles, y nadie puede asignar `SUPER_ADMIN` (regla 6.2).
 - [ ] El campo `active` del producto significa "habilitado" (regla 3.2), pero la UI lo muestra como
       "In Stock". Ajustar el texto o agregar stock al contrato.
 
@@ -351,8 +363,8 @@ son propiedad del backend: se deben acordar allí y luego reflejar aquí.
 
 1. ~~**Higiene base** (§11)~~ — resuelto (lockfile, `.env`, ESLint, `engines`). Quedan solo los opcionales
    (Prettier/Husky, TypeScript).
-2. **Cerrar el flujo de compra** (§4, §5) — conectar `cart-app` de verdad y construir `orders-app`, porque
-   hoy el user journey principal (catálogo → carrito → checkout) está roto en el medio.
+2. ~~**Cerrar el flujo de compra** (§4, §5)~~ — catálogo → carrito → checkout → pago funciona contra el mock.
+   Falta probarlo con el backend real cuando su CORS admita el shell (§12).
 3. **Admin App** (§6) — desbloquea el segundo actor del sistema.
 4. **UI Kit + manejo de sesión en shell** (§2, §7) — antes de testing, para no testear componentes que se
    van a refactorizar.
@@ -360,4 +372,4 @@ son propiedad del backend: se deben acordar allí y luego reflejar aquí.
 6. **CI/CD + Vercel** (§1, §9, §10) — en paralelo con testing, pero el `vercel.json`/variables de entorno
    solo tienen sentido una vez las apps funcionan end-to-end localmente.
 
-Los puntos de §12 conviene acordarlos con backend **antes** de empezar Orders App (§5).
+Las rutas de usuarios de §12 conviene acordarlas con backend **antes** de empezar Admin App (§6).

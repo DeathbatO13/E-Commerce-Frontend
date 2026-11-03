@@ -27,7 +27,7 @@ El shell monta `AuthApp` en `/login` y `/register`; el componente decide qué p�
 | Módulo | Contenido |
 |---|---|
 | `authApp/AuthApp` | Componente raíz (login/registro) |
-| `authApp/authService` | `login`, `register`, `getToken`, `getSession`, `getRole`, `decodeToken`, `isTokenExpired`, `logout`, `AUTH_SESSION_EVENT` |
+| `authApp/authService` | `login`, `register`, `getToken`, `getSession`, `getRole`, `getRoles`, `decodeToken`, `isTokenExpired`, `logout`, `AUTH_SESSION_EVENT` |
 | `authApp/useAuth` | `useLogin`, `useRegister`, `useAuthSession` |
 
 **Consume**: ningún remoto. **Compartido**: `react`, `react-dom`, `react-router-dom`.
@@ -36,9 +36,12 @@ El shell monta `AuthApp` en `/login` y `/register`; el componente decide qué p�
 
 - El JWT se guarda en `localStorage` con la clave `ecommerce.accessToken`.
 - Cada cambio de sesión (guardar o borrar el token) emite `ecommerce:auth-session-change` en `window`, con
-  el detalle `{ isAuthenticated, role, token }`.
-- El rol se lee del claim `role` del JWT (decodificado en el cliente, sin verificar la firma). El backend
-  sigue siendo la autoridad.
+  el detalle `{ isAuthenticated, role, roles, token }`.
+- Auth Service firma los roles en el claim `roles` (array con `SUPER_ADMIN`, `ADMIN` o `CLIENT`); el `sub`
+  es el UUID del usuario y el email va en el claim `email`. `getRoles()` devuelve el array y `getRole()` el de
+  mayor jerarquía (`SUPER_ADMIN` > `ADMIN` > `CLIENT`), que es el que usa `ProtectedRoute`. Si un token trae
+  el claim singular `role`, se acepta como respaldo.
+- El JWT se decodifica en el cliente sin verificar la firma: el backend sigue siendo la autoridad.
 - Un token vencido (claim `exp`) se elimina al leer la sesión. Todavía no hay expiración proactiva mientras
   se navega.
 

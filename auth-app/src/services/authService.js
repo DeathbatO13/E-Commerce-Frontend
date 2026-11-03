@@ -134,17 +134,34 @@ export function decodeToken(token) {
   }
 }
 
+// De mayor a menor jerarquía: si el usuario tiene varios roles, gana el primero que aparezca aquí
+const ROLE_PRIORITY = ['SUPER_ADMIN', 'ADMIN', 'CLIENT']
+
 /**
- * Obtiene el rol del usuario a partir del token JWT.
+ * Obtiene los roles del usuario a partir del token JWT.
+ * Auth Service los firma en el claim `roles` (array con los nombres del enum `Role`).
+ *
+ * @returns {string[]} Roles del usuario; vacío si no hay sesión
+ * @throws {None}
+ * @sideeffects Ninguno
+ */
+export function getRoles() {
+  const payload = decodeToken()
+  if (Array.isArray(payload?.roles)) return payload.roles
+  return payload?.role ? [payload.role] : []
+}
+
+/**
+ * Obtiene el rol principal del usuario (el de mayor jerarquía) a partir del token JWT.
  * Propósito: Facilitar la verificación de permisos en la UI.
- * 
+ *
  * @returns {string | null} El rol del usuario ('CLIENT', 'ADMIN', 'SUPER_ADMIN') o null
  * @throws {None}
  * @sideeffects Ninguno
  */
 export function getRole() {
-  const payload = decodeToken()
-  return payload?.role ?? null
+  const roles = getRoles()
+  return ROLE_PRIORITY.find((role) => roles.includes(role)) ?? roles[0] ?? null
 }
 
 /**
@@ -162,7 +179,7 @@ export function isTokenExpired(token) {
 /**
  * Devuelve la información pública disponible de la sesión local.
  *
- * @returns {{ isAuthenticated: boolean, role: string | null, token: string | null }} Estado actual de la sesión
+ * @returns {{ isAuthenticated: boolean, role: string | null, roles: string[], token: string | null }} Estado actual de la sesión
  * @sideeffects Elimina un token vencido del almacenamiento local
  */
 export function getSession() {
@@ -170,12 +187,13 @@ export function getSession() {
 
   if (token && isTokenExpired(token)) {
     removeToken()
-    return { isAuthenticated: false, role: null, token: null }
+    return { isAuthenticated: false, role: null, roles: [], token: null }
   }
 
   return {
     isAuthenticated: Boolean(token),
     role: token ? getRole() : null,
+    roles: token ? getRoles() : [],
     token,
   }
 }

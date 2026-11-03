@@ -18,7 +18,7 @@ El shell la monta en `/admin/*`. Ninguna está implementada todavía. Todas requ
 |---|---|---|---|
 | `/admin/products` | CRUD de productos y categorías | `POST/PUT/DELETE /products`, `/categories` | `ADMIN`, `SUPER_ADMIN` |
 | `/admin/orders` | Pedidos de todos los usuarios | `GET /orders` | `ADMIN`, `SUPER_ADMIN` |
-| `/admin/users` | Usuarios y roles | `GET /users`, `POST /users`, `PUT /users/{id}/role` | Cambiar roles: solo `SUPER_ADMIN` |
+| `/admin/users` | Usuarios y roles | `GET /admin/users`, `POST /admin/users/{id}/role?role=...` (rutas del código; `auth.yaml` dice otra cosa, ver backlog §12) | Cambiar roles: solo `SUPER_ADMIN` |
 
 > ⚠️ Pendiente de decisión: la regla 6.2 permite a `ADMIN` **listar** usuarios, pero el roadmap original
 > reservaba toda la sección a `SUPER_ADMIN`. Ver [backlog §12](../docs/backlog-mvp.md).

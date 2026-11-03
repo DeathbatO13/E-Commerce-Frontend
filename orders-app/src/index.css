@@ -1,3 +1,211 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  /* Layout común */
+  .orders-page {
+    @apply max-w-7xl mx-auto p-4 md:p-8 min-h-[60vh];
+  }
+
+  .orders-page-narrow {
+    @apply max-w-3xl;
+  }
+
+  .orders-page-header {
+    @apply flex flex-col md:flex-row md:items-end justify-between gap-2 border-b border-gray-200 pb-4 mb-8;
+  }
+
+  .orders-page-title {
+    @apply text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight;
+  }
+
+  .orders-page-subtitle {
+    @apply text-gray-500 mt-2 md:mt-0 font-medium;
+  }
+
+  .orders-card {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mb-6;
+  }
+
+  .orders-card-title {
+    @apply text-xl font-bold text-gray-900 mb-6;
+  }
+
+  /* Estados de página (cargando, error, vacío) */
+  .orders-page-message {
+    @apply flex flex-col items-center justify-center min-h-[50vh] text-center p-4;
+  }
+
+  .orders-page-message-icon {
+    @apply text-6xl text-gray-300 mb-4;
+  }
+
+  .orders-page-message h2 {
+    @apply text-2xl font-bold text-gray-800 mb-2;
+  }
+
+  .orders-page-message p {
+    @apply text-gray-500 mb-6;
+  }
+
+  /* Alertas */
+  .orders-alert-error {
+    @apply mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700;
+  }
+
+  .orders-alert-success {
+    @apply mb-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700;
+  }
+
+  /* Botones y enlaces */
+  .orders-primary-btn {
+    @apply inline-flex items-center justify-center gap-2 bg-primary text-white font-bold py-3 px-6 rounded-xl hover:bg-blue-600 transition-colors shadow-md shadow-primary/20 border-none cursor-pointer no-underline disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  .orders-secondary-btn {
+    @apply inline-flex items-center justify-center gap-2 bg-white text-gray-700 font-semibold py-3 px-6 rounded-xl border border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  .orders-danger-btn {
+    @apply inline-flex items-center justify-center gap-2 bg-white text-red-600 font-semibold py-3 px-6 rounded-xl border border-red-200 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  .orders-back-link {
+    @apply inline-flex items-center gap-2 text-primary font-medium hover:text-blue-700 transition-colors bg-transparent border-none cursor-pointer no-underline disabled:opacity-50;
+  }
+
+  /* Estado del pedido */
+  .order-status-badge {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap;
+  }
+
+  .order-status-created {
+    @apply bg-amber-100 text-amber-800;
+  }
+
+  .order-status-paid {
+    @apply bg-green-100 text-green-800;
+  }
+
+  .order-status-cancelled {
+    @apply bg-gray-200 text-gray-600;
+  }
+
+  /* Ítems del pedido */
+  .order-items-list {
+    @apply divide-y divide-gray-100;
+  }
+
+  .order-item {
+    @apply flex items-center justify-between gap-4 py-3;
+  }
+
+  .order-item-info {
+    @apply flex flex-col;
+  }
+
+  .order-item-name {
+    @apply font-semibold text-gray-900;
+  }
+
+  .order-item-meta {
+    @apply text-sm text-gray-500;
+  }
+
+  .order-item-subtotal {
+    @apply font-semibold text-gray-900 whitespace-nowrap;
+  }
+
+  .order-items-total {
+    @apply flex items-center justify-between border-t border-gray-200 pt-4 mt-2 text-lg font-bold text-gray-900;
+  }
+
+  .order-items-total-value {
+    @apply text-2xl;
+  }
+
+  /* Checkout */
+  .checkout-layout {
+    @apply flex flex-col lg:flex-row-reverse gap-8 items-start;
+  }
+
+  .checkout-summary {
+    @apply w-full lg:w-1/2;
+  }
+
+  .checkout-form {
+    @apply w-full lg:w-1/2 flex flex-col gap-4;
+  }
+
+  .checkout-label {
+    @apply text-sm font-medium text-gray-700;
+  }
+
+  .checkout-textarea {
+    @apply w-full rounded-xl border border-gray-300 p-3 text-gray-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:bg-gray-50;
+  }
+
+  /* Pago */
+  .payment-card {
+    @apply flex flex-col gap-4;
+  }
+
+  .payment-row {
+    @apply flex items-center justify-between;
+  }
+
+  .payment-label {
+    @apply text-gray-600 font-medium;
+  }
+
+  .payment-amount {
+    @apply text-2xl font-bold text-gray-900;
+  }
+
+  .payment-note {
+    @apply text-sm text-gray-500 border-t border-gray-100 pt-4;
+  }
+
+  .payment-actions {
+    @apply flex flex-col sm:flex-row gap-3;
+  }
+
+  /* Detalle */
+  .order-detail-actions {
+    @apply flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-4;
+  }
+
+  .order-detail-buttons {
+    @apply flex flex-col sm:flex-row gap-3;
+  }
+
+  /* Historial */
+  .orders-list {
+    @apply flex flex-col gap-3;
+  }
+
+  .orders-list-item {
+    @apply flex items-center gap-4 bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-5 hover:border-primary/40 hover:shadow-md transition no-underline;
+  }
+
+  .orders-list-info {
+    @apply flex flex-1 flex-col min-w-0;
+  }
+
+  .orders-list-id {
+    @apply font-bold text-gray-900;
+  }
+
+  .orders-list-meta {
+    @apply text-sm text-gray-500;
+  }
+
+  .orders-list-total {
+    @apply hidden sm:block font-bold text-gray-900 w-28 text-right;
+  }
+
+  .orders-list-chevron {
+    @apply text-gray-400;
+  }
+}
