@@ -41,6 +41,9 @@ function TopNavBar() {
                 />
               </div>
             </label>
+            <Link to="/orders" className="cart-btn" aria-label="Mis pedidos" title="Mis pedidos">
+              <span className="material-symbols-outlined">receipt_long</span>
+            </Link>
             <Link to="/cart" className="cart-btn" aria-label="Ver carrito">
               <span className="material-symbols-outlined">shopping_cart</span>
               {count > 0 && (

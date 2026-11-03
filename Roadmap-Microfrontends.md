@@ -17,7 +17,7 @@ Basado en la arquitectura hexagonal del backend, el sistema de Microfrontends (M
 | 2 | Auth App | 🟢 Completa | Login, registro, JWT y `useAuthSession` expuestos. |
 | 3 | Catalog App | 🟢 Completa | Listado, filtro por categoría y detalle conectados a la API. |
 | 4 | Cart App | 🟢 Completa* | Conectada a la API y a `CART_ADD_ITEM`. *Verificada contra un mock; falta probarla con el backend real. |
-| 5 | Orders App | 🔴 Pendiente | Solo placeholder. |
+| 5 | Orders App | 🟢 Completa* | Checkout, pago simulado, historial y detalle con cancelación. *Verificada contra un mock; el CORS del backend aún no admite el shell. |
 | 6 | Admin App | 🔴 Pendiente | Solo placeholder. |
 | 7 | Calidad y testing | 🔴 Pendiente | Sin tests, sin interceptor de errores. |
 | 8 | Despliegue Vercel + CI/CD | 🔴 Pendiente | Remotes ya parametrizados por entorno; falta todo lo demás. |
@@ -108,20 +108,21 @@ Gestiona exclusivamente el carrito de un usuario autenticado.
 Maneja el Checkout a partir del carrito y la visualización de órdenes pasadas.
 
 ### Tareas (Orders App):
-- [~] Inicializar el microfrontend `orders-app` (expuesto en `/orders/*`; hoy es un placeholder sin rutas protegidas).
-- [ ] **Flujo de Creación de Pedido (Checkout)**:
-  - Formulario para recoger la dirección de envío (`address`).
-  - Integrar `POST /orders` para confirmar la intención de compra.
-- [ ] **Flujo de Pago (Simulación)**:
-  - Pantalla para confirmar el pago del pedido recién creado.
-  - Integrar `POST /payments/process` pasándole el `orderId` y `amount` (pasa la orden a `PAID` si es `APPROVED`).
-- [ ] **Historial de Pedidos (`/orders`)**:
-  - Integrar `GET /orders` para ver las compras del usuario autenticado.
-- [ ] **Detalle de Pedido (`/orders/{id}`)**:
-  - Integrar `GET /orders/{id}` para mostrar ítems, estados (`CREATED`, `PAID`, `CANCELLED`) y totales.
+- [x] Inicializar el microfrontend `orders-app` (expuesto en `/orders/*`, protegido por `ProtectedRoute` en el shell).
+- [x] **Flujo de Creación de Pedido (Checkout, `/orders/checkout`)**:
+  - Resumen del carrito (`GET /cart`) y formulario para la dirección de envío (`address`).
+  - `POST /orders` crea el pedido; el id llega en la cabecera `Location`. El backend vacía el carrito y el
+    badge pasa a 0 (`CART_UPDATED`).
+- [x] **Flujo de Pago (Simulación, `/orders/:id/pay`)**:
+  - `POST /payments/process` con `orderId`, `amount` (= total del pedido) y `simulateResult`.
+    `APPROVED` → `PAID`; `REJECTED` → sigue `CREATED` y se puede reintentar.
+- [x] **Historial de Pedidos (`/orders`)**:
+  - `GET /orders`, ordenado del más reciente al más antiguo.
+- [x] **Detalle de Pedido (`/orders/:id`)**:
+  - `GET /orders/{id}` con ítems, estado y total. Si está `CREATED`: pagar o cancelar (`POST /orders/{id}/cancel`).
 
-> ⚠️ Bloqueado parcialmente por contratos: `POST /orders` no documenta cuerpo de respuesta (falta `orderId`)
-> y no existe endpoint de cancelación. Ver backlog §12.
+> Verificado en el navegador contra un mock local con el comportamiento del backend. **Falta probarlo contra
+> el backend real**: su CORS no admite todavía el origen del shell (`http://localhost:5000`). Ver backlog §12.
 
 ---
 
@@ -138,12 +139,13 @@ Panel de control para operaciones del negocio. Acceso protegido y validado en Fr
 - [ ] **Visualización Global de Pedidos (Req. `ADMIN`)**:
   - Tabla conectada a `GET /orders` global.
 - [ ] **Gestión de Usuarios**:
-  - Vista de usuarios listada de `GET /users`.
-  - Crear usuarios administrativos con `POST /users`.
-  - Cambiar roles con `PUT /users/{id}/role` (solo `SUPER_ADMIN`).
+  - Vista de usuarios (`ADMIN` y `SUPER_ADMIN`).
+  - Cambiar roles (solo `SUPER_ADMIN`; no se puede asignar `SUPER_ADMIN`).
+  - El backend ya no permite crear usuarios desde el panel (se quitó `POST /users`).
 
-> ⚠️ Pendiente de decisión: la regla 6.2 de `docs/busines-rules.md` permite a `ADMIN` **listar** usuarios,
-> mientras que este roadmap restringía toda la sección a `SUPER_ADMIN`. Ver backlog §12.
+> ⚠️ Las rutas reales del Auth Service son `GET /admin/users` y `POST /admin/users/{id}/role?role=...`,
+> pero `auth.yaml` todavía documenta `/users` y `PUT /users/{id}/role`. Confirmar con backend antes de
+> empezar. Ver backlog §12.
 
 ---
 

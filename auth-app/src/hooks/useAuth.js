@@ -77,7 +77,7 @@ export function useRegister({ onSuccess } = {}) {
  * Hook custom useAuthSession.
  * Propósito: Exponer el estado de autenticación, rol y cierre de sesión a cualquier consumidor federado.
  *
- * @returns {{ session: { isAuthenticated: boolean, role: string | null, token: string | null }, logout: function }} Sesión reactiva y acción para cerrarla
+ * @returns {{ session: { isAuthenticated: boolean, role: string | null, roles: string[], token: string | null }, logout: function }} Sesión reactiva y acción para cerrarla
  * @sideeffects Escucha eventos globales de cambio de sesión mientras está montado
  */
 export function useAuthSession() {
