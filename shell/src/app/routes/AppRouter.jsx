@@ -1,7 +1,10 @@
 import { Suspense, lazy } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import MainLayout from "../layout/MainLayout";
+import RemoteErrorBoundary from "../components/RemoteErrorBoundary";
+import { NotFoundPage, RemoteUnavailable } from "../components/ShellMessages";
 import ProtectedRoute from "./ProtectedRoute";
+import { ADMIN_ROLES } from "./roles";
 
 // Microfrontends cargados dinámicamente vía Module Federation
 const AuthApp     = lazy(() => import('authApp/AuthApp'));
@@ -9,9 +12,6 @@ const CatalogApp  = lazy(() => import('catalogApp/CatalogApp'));
 const CartApp     = lazy(() => import('cartApp/CartApp'));
 const OrdersApp   = lazy(() => import('ordersApp/OrdersApp'));
 const AdminApp    = lazy(() => import('adminApp/AdminApp'));
-
-/** Roles con acceso al panel de administración (regla 2.1). */
-const ADMIN_ROLES = ['ADMIN', 'SUPER_ADMIN'];
 
 /**
  * Componente LoadingFallback — Pantalla de carga genérica.
@@ -33,35 +33,58 @@ function LoadingFallback() {
 }
 
 /**
+ * Componente RemoteBoundary — Carga segura de un microfrontend.
+ * Propósito: Mostrar el spinner mientras carga el remoto y un aviso si falla, sin tumbar el Shell.
+ *
+ * @param {Object} props - Propiedades del componente
+ * @param {string} props.section - Primer segmento de la ruta; reinicia el boundary al cambiar
+ * @param {React.ReactNode} props.children - Contenido que carga el remoto
+ * @returns {JSX.Element} Contenido protegido
+ * @throws {None}
+ * @sideeffects Puede suspender el renderizado mientras carga dependencias remotas
+ */
+function RemoteBoundary({ section, children }) {
+  return (
+    <RemoteErrorBoundary key={section} fallback={<RemoteUnavailable />}>
+      <Suspense fallback={<LoadingFallback />}>{children}</Suspense>
+    </RemoteErrorBoundary>
+  );
+}
+
+/**
  * Componente AppRouter — Sistema de enrutamiento global.
  * Propósito: Orquestar las rutas de la aplicación Shell y montar los Microfrontends (remotos) bajo demanda (lazy).
  * 
  * @returns {JSX.Element} Declaración de rutas de la aplicación
  * @throws {None}
- * @sideeffects Puede suspender el renderizado mientras carga dependencias remotas
+ * @sideeffects Los remotos se cargan bajo demanda dentro de `RemoteBoundary`
  */
 function AppRouter() {
-  return (
-    <Suspense fallback={<LoadingFallback />}>
-      <Routes>
-        {/* ── Auth: sin MainLayout (pantalla completa propia) ── */}
-        <Route path="/login"    element={<AuthApp />} />
-        <Route path="/register" element={<AuthApp />} />
+  const { pathname } = useLocation();
+  // Al cambiar de sección se reinicia el boundary: un remoto caído no bloquea a los demás
+  const section = pathname.split("/")[1];
 
-        {/* ── Resto: con MainLayout (header + footer globales) ── */}
-        <Route path="/*" element={
-          <MainLayout>
+  return (
+    <Routes>
+      {/* ── Auth: sin MainLayout (pantalla completa propia) ── */}
+      <Route path="/login"    element={<RemoteBoundary section={section}><AuthApp /></RemoteBoundary>} />
+      <Route path="/register" element={<RemoteBoundary section={section}><AuthApp /></RemoteBoundary>} />
+
+      {/* ── Resto: con MainLayout (header + footer globales) ── */}
+      <Route path="/*" element={
+        <MainLayout>
+          <RemoteBoundary section={section}>
             <Routes>
               <Route path="/cart/*"    element={<ProtectedRoute><CartApp /></ProtectedRoute>} />
               <Route path="/orders/*"  element={<ProtectedRoute><OrdersApp /></ProtectedRoute>} />
               <Route path="/admin/*"   element={<ProtectedRoute roles={ADMIN_ROLES}><AdminApp /></ProtectedRoute>} />
-              <Route path="/"          element={<CatalogApp />} />
-              <Route path="/*"         element={<CatalogApp />} />
+              {/* El catálogo atiende `/` y `/products/:id`; lo demás es 404 */}
+              <Route path="/*"         element={<CatalogApp notFound={<NotFoundPage />} />} />
             </Routes>
-          </MainLayout>
-        } />
-      </Routes>
-    </Suspense>
+          </RemoteBoundary>
+        </MainLayout>
+      } />
+    </Routes>
   );
 }
 

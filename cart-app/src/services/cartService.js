@@ -4,7 +4,7 @@
  * por lo que cada llamada envía el JWT del usuario en la cabecera Authorization.
  */
 
-import { getToken } from 'authApp/authService';
+import { getToken, logout } from 'authApp/authService';
 
 const CART_BASE_URL = import.meta.env.VITE_CART_API_URL || 'http://localhost:8083';
 
@@ -109,13 +109,14 @@ function authHeaders(extra = {}) {
  * @param {string} fallbackMessage - Mensaje de error por defecto
  * @returns {Promise<unknown>} Cuerpo JSON de la respuesta o null
  * @throws {Error} Si la respuesta no es exitosa
- * @sideeffects Consume el cuerpo de la respuesta
+ * @sideeffects Consume el cuerpo de la respuesta; en 401 cierra la sesión (el Shell redirige a `/login`)
  */
 async function parseResponse(response, fallbackMessage) {
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
     if (response.status === 401) {
+      logout();
       throw new Error('Tu sesión expiró. Inicia sesión nuevamente.');
     }
     throw new Error(data?.message || fallbackMessage);

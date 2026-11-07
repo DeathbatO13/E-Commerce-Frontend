@@ -179,7 +179,7 @@ export function isTokenExpired(token) {
 /**
  * Devuelve la información pública disponible de la sesión local.
  *
- * @returns {{ isAuthenticated: boolean, role: string | null, roles: string[], token: string | null }} Estado actual de la sesión
+ * @returns {{ isAuthenticated: boolean, email: string | null, role: string | null, roles: string[], token: string | null }} Estado actual de la sesión
  * @sideeffects Elimina un token vencido del almacenamiento local
  */
 export function getSession() {
@@ -187,11 +187,12 @@ export function getSession() {
 
   if (token && isTokenExpired(token)) {
     removeToken()
-    return { isAuthenticated: false, role: null, roles: [], token: null }
+    return { isAuthenticated: false, email: null, role: null, roles: [], token: null }
   }
 
   return {
     isAuthenticated: Boolean(token),
+    email: token ? decodeToken()?.email ?? null : null,
     role: token ? getRole() : null,
     roles: token ? getRoles() : [],
     token,

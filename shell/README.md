@@ -17,7 +17,8 @@ principal y carga en runtime los microfrontends remotos vía Module Federation.
 | `/cart/*` | `cartApp/CartApp` | `MainLayout` · requiere sesión |
 | `/orders/*` | `ordersApp/OrdersApp` | `MainLayout` · requiere sesión |
 | `/admin/*` | `adminApp/AdminApp` | `MainLayout` · requiere rol `ADMIN` o `SUPER_ADMIN` |
-| `/` y cualquier otra ruta | `catalogApp/CatalogApp` | `MainLayout` |
+| `/`, `/products/:id` | `catalogApp/CatalogApp` | `MainLayout` |
+| Cualquier otra ruta | `NotFoundPage` (404, renderizada por Catalog App vía `notFound`) | `MainLayout` |
 
 Definidas en [`src/app/routes/AppRouter.jsx`](src/app/routes/AppRouter.jsx).
 
@@ -27,7 +28,10 @@ Definidas en [`src/app/routes/AppRouter.jsx`](src/app/routes/AppRouter.jsx).
 - **`CartSync`**: `MainLayout` monta `cartApp/CartSync` en todas las páginas para procesar `CART_ADD_ITEM`.
   Va dentro de [`RemoteErrorBoundary`](src/app/components/RemoteErrorBoundary.jsx): si cart-app no carga, el
   resto del layout sigue funcionando.
-- Pendiente: página 404 y `ErrorBoundary` con fallback visible alrededor de las rutas.
+- **Remoto caído**: `RemoteBoundary` (en `AppRouter.jsx`) muestra "Esta sección no está disponible" con
+  "Reintentar"; navbar y footer siguen funcionando y cambiar de sección reinicia el boundary. `auth-app` es la
+  excepción: `ProtectedRoute` y `TopNavBar` lo importan de forma estática, así que sin él el shell no arranca.
+- **Navbar**: botón "Iniciar sesión" o `UserMenu` según la sesión, y buscador que publica `/?q=...` para Catalog App.
 
 ## Module Federation
 
@@ -59,7 +63,7 @@ El bus ([`eventBus.js`](src/core/events/eventBus.js)) usa `CustomEvent` sobre `w
 |---|---|---|
 | `ecommerce:cart-add-item` | `CART_ADD_ITEM` | No lo escucha: lo emite Catalog App y lo procesa `cartApp/CartSync`. |
 | `ecommerce:cart-updated` | `CART_UPDATED` | **Escucha**: `useCartBadge` muestra `itemCount` en el navbar (último valor en `localStorage` como `ecommerce.cartCount`). |
-| `ecommerce:auth-session-change` | `AUTH_SESSION_CHANGE` | `ProtectedRoute` reacciona a él vía `authApp/useAuth`; el navbar todavía no. |
+| `ecommerce:auth-session-change` | `AUTH_SESSION_CHANGE` | `ProtectedRoute` y el navbar reaccionan a él vía `authApp/useAuth`. |
 
 ## Variables de entorno
 

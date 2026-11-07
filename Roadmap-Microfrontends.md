@@ -13,12 +13,12 @@ Basado en la arquitectura hexagonal del backend, el sistema de Microfrontends (M
 
 | Fase | App | Avance | Resumen |
 |---|---|---|---|
-| 1 | Shell | 🟡 Parcial | Router, MF, bus de eventos y rutas protegidas listos. Falta sesión en el header, 404 y UI Kit. |
+| 1 | Shell | 🟡 Parcial | Router, MF, bus de eventos, rutas protegidas, sesión en el header, 404 y aviso de remoto caído listos. Falta el UI Kit. |
 | 2 | Auth App | 🟢 Completa | Login, registro, JWT y `useAuthSession` expuestos. |
-| 3 | Catalog App | 🟢 Completa | Listado, filtro por categoría y detalle conectados a la API. |
+| 3 | Catalog App | 🟢 Completa | Listado, filtro por categoría y disponibilidad, y detalle con el `ProductResponse` real del backend. |
 | 4 | Cart App | 🟢 Completa* | Conectada a la API y a `CART_ADD_ITEM`. *Verificada contra un mock; falta probarla con el backend real. |
 | 5 | Orders App | 🟢 Completa* | Checkout, pago simulado, historial y detalle con cancelación. *Verificada contra un mock; el CORS del backend aún no admite el shell. |
-| 6 | Admin App | 🔴 Pendiente | Solo placeholder. |
+| 6 | Admin App | 🟢 Completa* | Resumen, CRUD de catálogo, pedidos globales y roles. *Verificada contra un mock. |
 | 7 | Calidad y testing | 🔴 Pendiente | Sin tests, sin interceptor de errores. |
 | 8 | Despliegue Vercel + CI/CD | 🔴 Pendiente | Remotes ya parametrizados por entorno; falta todo lo demás. |
 
@@ -32,14 +32,13 @@ El **Shell App** es la aplicación anfitriona que orquesta la carga de todos los
 - [x] Inicializar el monorepo con Turborepo + npm workspaces.
 - [x] Configurar el **Shell App** con React y Vite (Module Federation).
 - [x] Parametrizar las URLs de los remotes por entorno (`loadEnv` + `.env` en la raíz, ver `.env.example`).
-- [~] Definir e implementar el sistema de enrutamiento principal (`react-router-dom`).
-  - Hecho: rutas `/login`, `/register`, `/cart`, `/orders/*`, `/admin/*` y catálogo en `/`.
-  - Falta: página 404 (hoy cualquier ruta desconocida cae en `CatalogApp`) y `ErrorBoundary` en las rutas si un remoto no carga.
+- [x] Definir e implementar el sistema de enrutamiento principal (`react-router-dom`).
+  - Rutas `/login`, `/register`, `/cart`, `/orders/*`, `/admin/*` y catálogo en `/`, con página 404 y aviso si un remoto no carga.
 - [ ] **UI Kit Compartido (Shared Library):** Crear un paquete interno o design system con Tailwind CSS para componentes comunes (Botones, Inputs, Modales, Tablas, Headers) y un preset de Tailwind común.
 - [x] Implementar un bus de eventos (`CustomEvents`) para comunicar remotos (`shell/src/core/events/eventBus.js`, expuesto como `shellApp/eventBus`).
-- [~] Integrar un Header global en el Shell con la navegación principal, acceso a login/perfil y el "Mini Cart".
-  - Hecho: navbar global con badge del carrito sincronizado con el backend (`useCartBadge` + `CART_UPDATED`).
-  - Falta: mostrar login vs. avatar/logout según sesión, enlace a `/admin` por rol, buscador funcional, rutas reales de `Categories`/`About Us`.
+- [x] Integrar un Header global en el Shell con la navegación principal, acceso a login/perfil y el "Mini Cart".
+  - Badge del carrito sincronizado con el backend (`useCartBadge` + `CART_UPDATED`).
+  - Botón de login o menú de usuario según la sesión (pedidos, panel por rol, cerrar sesión) y buscador (`/?q=`).
 - [x] Rutas protegidas (`ProtectedRoute`) para `/cart/*`, `/orders/*` y `/admin/*` (rol `ADMIN`/`SUPER_ADMIN`), con redirección a `/login` y retorno a la página de origen.
 
 ---
@@ -74,7 +73,8 @@ Microfrontend de acceso público. Responsable de mostrar productos, categorías 
   - [x] Integrar `GET /categories`.
   - [x] Crear componente de filtros laterales de categorías.
 - [x] **Listado de Productos (`/`)**:
-  - [x] Integrar `GET /products` (con soporte para filtrar por `categoryId` y `active`).
+  - [x] Integrar `GET /products` (filtro por `categoryId` en la API; "In Stock Only" en el cliente, porque la API no filtra por `active`).
+  - [x] Nombre de categoría resuelto desde `categoryId` y disponibilidad según `active` y `stock`.
   - [x] Construir grid de tarjetas de producto mostrando información básica y precio.
 - [x] **Detalle del Producto (`/products/{id}`)**:
   - [x] Integrar `GET /products/{id}`.
@@ -131,21 +131,19 @@ Maneja el Checkout a partir del carrito y la visualización de órdenes pasadas.
 Panel de control para operaciones del negocio. Acceso protegido y validado en Frontend (el backend sigue siendo la autoridad).
 
 ### Tareas (Admin App):
-- [~] Inicializar el microfrontend `admin-app` (expuesto en `/admin/*`; hoy es un placeholder).
-- [ ] Crear Layout (SideMenu, Dashboard) y **Guardianes de Ruta** (Validar rol `ADMIN` o `SUPER_ADMIN`).
-- [ ] **Gestión de Catálogo (Req. `ADMIN`)**:
-  - CRUD de Categorías: `POST /categories`, `PUT /categories/{id}`, `DELETE /categories/{id}`.
-  - CRUD de Productos: `POST /products`, `PUT /products/{id}`, `DELETE /products/{id}`.
-- [ ] **Visualización Global de Pedidos (Req. `ADMIN`)**:
-  - Tabla conectada a `GET /orders` global.
-- [ ] **Gestión de Usuarios**:
-  - Vista de usuarios (`ADMIN` y `SUPER_ADMIN`).
-  - Cambiar roles (solo `SUPER_ADMIN`; no se puede asignar `SUPER_ADMIN`).
-  - El backend ya no permite crear usuarios desde el panel (se quitó `POST /users`).
+- [x] Inicializar el microfrontend `admin-app` (expuesto en `/admin/*`).
+- [x] Layout (menú lateral + Resumen) y **guardián de ruta** (`ProtectedRoute` del shell con `ADMIN`/`SUPER_ADMIN`).
+- [x] **Gestión de Catálogo (Req. `ADMIN`)**:
+  - Categorías: crear, renombrar y eliminar (borrado lógico; bloqueado si tiene productos activos).
+  - Productos: crear, editar, desactivar y reactivar, con validación previa (precio > 0, stock ≥ 0).
+- [x] **Visualización Global de Pedidos (Req. `ADMIN`)**:
+  - `GET /orders` global con filtro por estado, email del cliente y cancelación de pedidos pendientes.
+- [x] **Gestión de Usuarios**:
+  - Listado (`GET /admin/users`) para `ADMIN` y `SUPER_ADMIN`.
+  - Cambio de rol `CLIENT` ↔ `ADMIN` (`POST /admin/users/{id}/role`), solo `SUPER_ADMIN`.
 
-> ⚠️ Las rutas reales del Auth Service son `GET /admin/users` y `POST /admin/users/{id}/role?role=...`,
-> pero `auth.yaml` todavía documenta `/users` y `PUT /users/{id}/role`. Confirmar con backend antes de
-> empezar. Ver backlog §12.
+> Se usaron las rutas y formas del **código** del backend, que difieren de `auth.yaml` y `catalog.yaml`
+> (backlog §12). Verificado contra un mock; falta probar con el backend real.
 
 ---
 

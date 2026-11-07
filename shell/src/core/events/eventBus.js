@@ -29,7 +29,7 @@ export const CART_UPDATED = 'ecommerce:cart-updated'
 /**
  * Evento emitido cuando cambia la sesión del usuario (login / logout).
  * Debe coincidir con `AUTH_SESSION_EVENT` de `authApp/authService`, que es quien lo emite.
- * Payload: `{ isAuthenticated: boolean, role: string | null, token: string | null }`
+ * Payload: `{ isAuthenticated: boolean, email: string | null, role: string | null, roles: string[], token: string | null }`
  * @type {string}
  */
 export const AUTH_SESSION_CHANGE = 'ecommerce:auth-session-change'

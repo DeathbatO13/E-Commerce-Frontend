@@ -4,7 +4,7 @@
  *
  * @param {Object} props - Propiedades del componente
  * @param {Array<{ id: string, name: string }>} props.categories - Categorías disponibles
- * @param {{ categoryId: string, activeOnly: boolean }} props.filters - Valores actualmente editables
+ * @param {{ categoryId: string, availableOnly: boolean }} props.filters - Valores actualmente editables
  * @param {function} props.onChange - Callback para modificar un filtro
  * @param {function} props.onApply - Callback para aplicar filtros
  * @param {function} props.onReset - Callback para restaurar filtros
@@ -60,11 +60,11 @@ function CatalogFilters({ categories, filters, onChange, onApply, onReset }) {
           <h4 className="catalog-filter-label">Availability</h4>
           <label className="catalog-active-filter" htmlFor="availability-toggle">
             <input
-              checked={filters.activeOnly}
+              checked={filters.availableOnly}
               className="catalog-filter-checkbox"
               id="availability-toggle"
               type="checkbox"
-              onChange={event => onChange('activeOnly', event.target.checked)}
+              onChange={event => onChange('availableOnly', event.target.checked)}
             />
             <div className="catalog-filter-toggle"></div>
             <span className="catalog-filter-toggle-text">In Stock Only</span>

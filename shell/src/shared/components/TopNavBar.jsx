@@ -1,17 +1,37 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuthSession } from 'authApp/useAuth';
 import { useCartBadge } from '../../core/events/useCartBadge';
+import UserMenu from './UserMenu';
 
 /**
  * Componente TopNavBar — Barra de navegación global del Shell.
- * Propósito: Mostrar la marca, navegación principal, búsqueda, contador del carrito
- * y avatar del usuario. El contador del carrito es reactivo al eventBus.
+ * Propósito: Mostrar la marca, búsqueda, contador del carrito y la sesión: botón de login o menú de usuario.
+ * El contador del carrito es reactivo al eventBus. La búsqueda se publica en la URL (`/?q=...`) y la aplica
+ * Catalog App.
  *
  * @returns {JSX.Element} Header sticky con navegación global
  * @sideeffects Suscribe al eventBus para actualizar el contador del carrito en tiempo real
+ *   y escucha cambios de sesión (vía `useAuthSession`)
  */
 function TopNavBar() {
   const { count } = useCartBadge()
+  const { session, logout } = useAuthSession()
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const currentSearch = searchParams.get('q') ?? ''
+
+  /**
+   * Lleva la búsqueda al catálogo; vacía, vuelve al listado completo.
+   *
+   * @param {React.FormEvent<HTMLFormElement>} event - Envío del buscador
+   * @returns {void}
+   */
+  function handleSearch(event) {
+    event.preventDefault()
+    const term = new FormData(event.currentTarget).get('q').trim()
+    navigate(term ? `/?${new URLSearchParams({ q: term })}` : '/')
+  }
 
   return (
     <header className="navbar">
@@ -24,26 +44,25 @@ function TopNavBar() {
             </div>
             <nav className="navbar-nav">
               <Link to="/" className="navbar-link-active">Home</Link>
-              <Link to="/categories" className="navbar-link">Categories</Link>
-              <Link to="/about" className="navbar-link">About Us</Link>
             </nav>
           </div>
           <div className="navbar-actions">
-            <label className="search-wrapper">
+            <form className="search-wrapper" role="search" onSubmit={handleSearch}>
               <div className="search-inner">
                 <div className="search-icon-container">
                   <span className="material-symbols-outlined">search</span>
                 </div>
                 <input
-                  type="text"
+                  key={currentSearch}
+                  type="search"
+                  name="q"
                   className="search-input"
                   placeholder="Search products..."
+                  aria-label="Buscar productos"
+                  defaultValue={currentSearch}
                 />
               </div>
-            </label>
-            <Link to="/orders" className="cart-btn" aria-label="Mis pedidos" title="Mis pedidos">
-              <span className="material-symbols-outlined">receipt_long</span>
-            </Link>
+            </form>
             <Link to="/cart" className="cart-btn" aria-label="Ver carrito">
               <span className="material-symbols-outlined">shopping_cart</span>
               {count > 0 && (
@@ -52,7 +71,11 @@ function TopNavBar() {
                 </span>
               )}
             </Link>
-            <div className="user-avatar" data-alt="User profile picture" style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBRJhcTu9q0kgoSqzKclLZ_nujdAPFTWLBJvNZ6tqjaeQX4xEPxlWD0opjssm2MHa5IdJltfK9McXttxOIQBHrtTX9trVUl-yChcmyHWuIAPp4H_kRE1czJtWOkSA6oXKPT7p2j9c3caVt6s5iTWbbIretLi6q5JgDin77VJJNB5OAOX0PAR07JbFa7qXSWlz4HdH1Lra2gZIwQjVNAPzD5pqVklKmAO-hW2-tUX4vlxgMd85cQ4AIr06sPbtZ-4U1XcmgqFhqy5-dc")' }}></div>
+            {session.isAuthenticated ? (
+              <UserMenu session={session} onLogout={logout} />
+            ) : (
+              <Link to="/login" className="navbar-login-btn">Iniciar sesión</Link>
+            )}
           </div>
         </div>
       </div>
@@ -61,4 +84,3 @@ function TopNavBar() {
 }
 
 export default TopNavBar;
-
