@@ -1,5 +1,18 @@
 import { useState, useEffect } from 'react'
-import { getProductById } from '../services/catalogService'
+import { getCategories, getProductById, withCategoryNames } from '../services/catalogService'
+
+/**
+ * Carga un producto y le agrega `categoryName`. Si las categorías no cargan, el producto se muestra igual.
+ *
+ * @param {string} id - ID del producto
+ * @returns {Promise<Object>} Producto con `categoryName`
+ * @throws {Error} Si el producto no existe o el servicio falla
+ * @sideeffects Peticiones HTTP GET a /products/{id} y /categories
+ */
+async function loadProduct(id) {
+  const [product, categories] = await Promise.all([getProductById(id), getCategories().catch(() => [])])
+  return withCategoryNames([product], categories)[0]
+}
 
 /**
  * Hook custom useProductDetail.
@@ -18,7 +31,7 @@ export function useProductDetail(id) {
 
     let isMounted = true
 
-    getProductById(id)
+    loadProduct(id)
       .then(data => {
         if (isMounted) setResult({ id, product: data, error: null })
       })

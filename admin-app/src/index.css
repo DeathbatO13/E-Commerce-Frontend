@@ -1,3 +1,251 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  /* Layout */
+  .admin-layout {
+    @apply max-w-7xl mx-auto p-4 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 min-h-[60vh];
+  }
+
+  .admin-sidebar {
+    @apply md:w-56 shrink-0;
+  }
+
+  .admin-sidebar-header {
+    @apply flex items-center justify-between md:flex-col md:items-start gap-1 mb-4;
+  }
+
+  .admin-sidebar-title {
+    @apply text-lg font-extrabold text-gray-900;
+  }
+
+  .admin-sidebar-role {
+    @apply text-xs font-semibold uppercase tracking-wide text-primary;
+  }
+
+  .admin-nav {
+    @apply flex md:flex-col gap-1 overflow-x-auto;
+  }
+
+  .admin-nav-link {
+    @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors no-underline whitespace-nowrap;
+  }
+
+  .admin-nav-link-active {
+    @apply bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary;
+  }
+
+  .admin-content {
+    @apply flex-1 min-w-0;
+  }
+
+  .admin-page-header {
+    @apply flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 pb-4 mb-6;
+  }
+
+  .admin-page-title {
+    @apply text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight;
+  }
+
+  .admin-card {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6;
+  }
+
+  .admin-card-title {
+    @apply text-lg font-bold text-gray-900 mb-4;
+  }
+
+  .admin-muted {
+    @apply text-sm text-gray-500;
+  }
+
+  /* Estados de sección */
+  .admin-page-message {
+    @apply flex flex-col items-center justify-center min-h-[30vh] text-center p-4;
+  }
+
+  .admin-page-message-icon {
+    @apply text-5xl text-gray-300 mb-3;
+  }
+
+  .admin-page-message h2 {
+    @apply text-xl font-bold text-gray-800 mb-1;
+  }
+
+  .admin-page-message p {
+    @apply text-gray-500;
+  }
+
+  /* Alertas */
+  .admin-alert-error {
+    @apply mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700;
+  }
+
+  .admin-alert-info {
+    @apply mb-6 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700;
+  }
+
+  /* Botones */
+  .admin-primary-btn {
+    @apply inline-flex items-center justify-center gap-2 bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  .admin-secondary-btn {
+    @apply inline-flex items-center justify-center gap-2 bg-white text-gray-700 font-semibold py-2 px-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  .admin-link-btn {
+    @apply inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-blue-700 bg-transparent border-none p-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .admin-link-btn .material-symbols-outlined {
+    @apply text-lg;
+  }
+
+  .admin-link-btn-danger {
+    @apply text-red-600 hover:text-red-700;
+  }
+
+  /* Formularios */
+  .admin-form-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+  }
+
+  .admin-field {
+    @apply flex flex-col gap-1;
+  }
+
+  .admin-field-wide {
+    @apply md:col-span-2;
+  }
+
+  .admin-field-grow {
+    @apply flex-1;
+  }
+
+  .admin-field-label {
+    @apply text-sm font-medium text-gray-700;
+  }
+
+  .admin-field-error {
+    @apply text-xs text-red-600;
+  }
+
+  .admin-input {
+    @apply w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 bg-white focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:bg-gray-50;
+  }
+
+  .admin-form-actions {
+    @apply flex justify-end gap-3 mt-6;
+  }
+
+  .admin-inline-form {
+    @apply flex flex-col sm:flex-row sm:items-start gap-4;
+  }
+
+  .admin-inline-form .admin-primary-btn {
+    @apply sm:mt-6;
+  }
+
+  .admin-toolbar {
+    @apply flex flex-wrap items-center justify-between gap-3 mb-4;
+  }
+
+  .admin-search {
+    @apply sm:max-w-xs;
+  }
+
+  .admin-select {
+    @apply w-auto;
+  }
+
+  /* Tablas */
+  .admin-table-wrapper {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto;
+  }
+
+  .admin-table {
+    @apply w-full text-sm text-left;
+  }
+
+  .admin-table th {
+    @apply px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 border-b border-gray-100 whitespace-nowrap;
+  }
+
+  .admin-table td {
+    @apply px-4 py-3 border-b border-gray-50 align-middle text-gray-700;
+  }
+
+  .admin-cell-title {
+    @apply block font-semibold text-gray-900;
+  }
+
+  .admin-cell-subtitle {
+    @apply block text-xs text-gray-500 max-w-xs truncate;
+  }
+
+  .admin-cell-number {
+    @apply text-right whitespace-nowrap;
+  }
+
+  .admin-cell-actions {
+    @apply text-right whitespace-nowrap space-x-3;
+  }
+
+  .admin-row-muted td {
+    @apply text-gray-400;
+  }
+
+  .admin-row-muted .admin-cell-title {
+    @apply text-gray-500;
+  }
+
+  .admin-row-detail td {
+    @apply bg-gray-50;
+  }
+
+  /* Etiquetas */
+  .admin-badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 mr-1 text-xs font-semibold whitespace-nowrap;
+  }
+
+  .admin-badge-success { @apply bg-green-100 text-green-800; }
+  .admin-badge-warning { @apply bg-amber-100 text-amber-800; }
+  .admin-badge-neutral { @apply bg-gray-200 text-gray-600; }
+  .admin-badge-info { @apply bg-blue-100 text-blue-800; }
+  .admin-badge-danger { @apply bg-red-100 text-red-800; }
+
+  /* Resumen */
+  .admin-stats {
+    @apply grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6;
+  }
+
+  .admin-stat {
+    @apply flex flex-col gap-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-5 no-underline hover:border-primary/40 transition;
+  }
+
+  .admin-stat-label {
+    @apply text-sm font-medium text-gray-500;
+  }
+
+  .admin-stat-value {
+    @apply text-3xl font-extrabold text-gray-900;
+  }
+
+  .admin-stat-hint {
+    @apply text-xs text-gray-500;
+  }
+
+  .admin-simple-list {
+    @apply divide-y divide-gray-100;
+  }
+
+  .admin-simple-list-item {
+    @apply flex items-center justify-between gap-4 py-2 text-sm;
+  }
+
+  .admin-simple-list-value {
+    @apply font-semibold text-gray-900 whitespace-nowrap;
+  }
+}

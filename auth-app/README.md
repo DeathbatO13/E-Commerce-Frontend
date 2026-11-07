@@ -36,7 +36,7 @@ El shell monta `AuthApp` en `/login` y `/register`; el componente decide qué p�
 
 - El JWT se guarda en `localStorage` con la clave `ecommerce.accessToken`.
 - Cada cambio de sesión (guardar o borrar el token) emite `ecommerce:auth-session-change` en `window`, con
-  el detalle `{ isAuthenticated, role, roles, token }`.
+  el detalle `{ isAuthenticated, email, role, roles, token }`.
 - Auth Service firma los roles en el claim `roles` (array con `SUPER_ADMIN`, `ADMIN` o `CLIENT`); el `sub`
   es el UUID del usuario y el email va en el claim `email`. `getRoles()` devuelve el array y `getRole()` el de
   mayor jerarquía (`SUPER_ADMIN` > `ADMIN` > `CLIENT`), que es el que usa `ProtectedRoute`. Si un token trae

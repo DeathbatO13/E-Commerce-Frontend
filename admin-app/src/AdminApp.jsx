@@ -1,51 +1,37 @@
+import { Routes, Route, Navigate } from 'react-router-dom';
+import AdminLayout from './components/AdminLayout';
+import DashboardPage from './pages/DashboardPage';
+import ProductsPage from './pages/ProductsPage';
+import CategoriesPage from './pages/CategoriesPage';
+import OrdersAdminPage from './pages/OrdersAdminPage';
+import UsersPage from './pages/UsersPage';
+
 /**
  * Componente AdminApp — Microfrontend de Administración.
- * Propósito: Renderizar el panel de administración central del sistema.
- * Expuesto vía Module Federation como: adminApp/AdminApp
- * Puerto: 5005
- * 
- * @returns {JSX.Element} Interfaz del panel de administración
+ * Propósito: Panel para gestionar catálogo, pedidos globales y usuarios.
+ * Expuesto vía Module Federation como: adminApp/AdminApp. El Shell la monta en `/admin/*` y solo deja
+ * entrar a `ADMIN` y `SUPER_ADMIN` (`ProtectedRoute`); las rutas de aquí son relativas a `/admin`.
+ * Es una validación de UI: el backend sigue siendo la autoridad (regla 7).
+ *
+ * @returns {JSX.Element} Rutas del panel
  * @throws {None}
  * @sideeffects Ninguno
  */
 function AdminApp() {
   return (
-    <div className="flex items-center justify-center min-h-[60vh] p-6">
-      <div className="bg-gradient-to-br from-rose-50 to-red-50 border border-rose-200 rounded-2xl p-10 max-w-md w-full text-center shadow-sm">
-        <div className="text-6xl mb-5">⚙️</div>
-        <h2 className="text-2xl font-bold text-rose-800 mb-2">Admin App</h2>
-        <p className="text-gray-500 mb-6 text-sm leading-relaxed">
-          Panel de administración — Gestión de productos, categorías, pedidos y usuarios.
-        </p>
-        <div className="flex flex-wrap gap-2 justify-center">
-          <span className="bg-rose-100 text-rose-700 text-xs font-semibold px-3 py-1 rounded-full">
-            ✓ Module Federation
-          </span>
-          <span className="bg-red-100 text-red-700 text-xs font-semibold px-3 py-1 rounded-full">
-            Puerto 5005
-          </span>
-          <span className="bg-yellow-100 text-yellow-700 text-xs font-semibold px-3 py-1 rounded-full">
-            🔒 ADMIN / SUPER_ADMIN
-          </span>
-        </div>
-        <div className="mt-8 border-t border-rose-100 pt-6 text-left space-y-2">
-          <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-3">Rutas pendientes</p>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <span className="w-2 h-2 rounded-full bg-rose-300 inline-block" />
-            <code>/admin/products</code>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <span className="w-2 h-2 rounded-full bg-rose-300 inline-block" />
-            <code>/admin/orders</code>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <span className="w-2 h-2 rounded-full bg-rose-300 inline-block" />
-            <code>/admin/users</code>
-          </div>
-        </div>
-      </div>
+    <div className="admin-app-shell">
+      <Routes>
+        <Route element={<AdminLayout />}>
+          <Route index element={<DashboardPage />} />
+          <Route path="products" element={<ProductsPage />} />
+          <Route path="categories" element={<CategoriesPage />} />
+          <Route path="orders" element={<OrdersAdminPage />} />
+          <Route path="users" element={<UsersPage />} />
+          <Route path="*" element={<Navigate to="/admin" replace />} />
+        </Route>
+      </Routes>
     </div>
-  )
+  );
 }
 
-export default AdminApp
+export default AdminApp;

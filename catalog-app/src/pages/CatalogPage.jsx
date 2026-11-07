@@ -1,26 +1,30 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import CatalogEmptyState from '../components/CatalogEmptyState'
 import CatalogFilters from '../components/CatalogFilters'
 import ProductCard from '../components/ProductCard'
 import { useCatalog } from '../hooks/useCatalog'
 
-const DEFAULT_FILTERS = { categoryId: '', activeOnly: true }
+const DEFAULT_FILTERS = { categoryId: '', availableOnly: true }
 
 /**
  * Componente CatalogPage.
  * Propósito: Orquestar filtros, carga del catálogo y presentación del listado público de productos.
+ * La búsqueda llega por la URL (`/?q=...`), que escribe el buscador del navbar del Shell.
  *
  * @returns {JSX.Element} Página principal del catálogo
  * @sideeffects Consume el hook useCatalog para cargar datos remotos
  */
 function CatalogPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const search = searchParams.get('q') ?? ''
   const [draftFilters, setDraftFilters] = useState(DEFAULT_FILTERS)
   const [appliedFilters, setAppliedFilters] = useState(DEFAULT_FILTERS)
   const { categories, products, loading, error } = useCatalog({
     categoryId: appliedFilters.categoryId,
-    active: appliedFilters.activeOnly || undefined,
+    availableOnly: appliedFilters.availableOnly,
+    search,
   })
 
   /**
@@ -66,7 +70,9 @@ function CatalogPage() {
       <div className="catalog-content">
         <div className="catalog-header">
           <h1 className="catalog-title">Our Products</h1>
-          <p className="catalog-subtitle">Browse through our collection of high-quality products.</p>
+          <p className="catalog-subtitle">
+            {search ? `Results for "${search}"` : 'Browse through our collection of high-quality products.'}
+          </p>
         </div>
 
         {loading && <p className="catalog-loading">Cargando productos…</p>}

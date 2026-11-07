@@ -24,7 +24,7 @@ El Frontend de esta aplicación está construido utilizando una arquitectura mod
 | **Catalog App** | 5002 | Listado de productos, categorías y detalle. | 🟢 Completa | [catalog-app/](catalog-app/README.md) |
 | **Cart App** | 5003 | Carrito del usuario autenticado. | 🟢 Completa (verificada con mock) | [cart-app/](cart-app/README.md) |
 | **Orders App** | 5004 | Checkout, pago simulado e historial de pedidos. | 🟢 Completa | [orders-app/](orders-app/README.md) |
-| **Admin App** | 5005 | Panel de administración de catálogo, pedidos y usuarios. | 🔴 Placeholder | [admin-app/](admin-app/README.md) |
+| **Admin App** | 5005 | Panel de administración de catálogo, pedidos y usuarios. | 🟢 Completa | [admin-app/](admin-app/README.md) |
 
 Cada README de app documenta sus rutas, lo que expone y consume por Module Federation, los eventos que emite o escucha y sus variables de entorno.
 

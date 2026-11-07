@@ -59,7 +59,7 @@ crear una dependencia circular shell ↔ cart. Deben coincidir con `shell/src/co
 |---|---|---|
 | `ecommerce:cart-add-item` (`CART_ADD_ITEM`) | **Escucha** (`CartSync`): agrega al backend si hay sesión | `{ productId, quantity }` |
 | `ecommerce:cart-updated` (`CART_UPDATED`) | **Emite** al cargar, tras cada cambio y al cambiar la sesión | `{ itemCount }` (suma de cantidades; 0 sin sesión) |
-| `ecommerce:auth-session-change` | **Escucha** (`CartSync`): recalcula el total | `{ isAuthenticated, role, token }` |
+| `ecommerce:auth-session-change` | **Escucha** (`CartSync`): recalcula el total | `{ isAuthenticated, email, role, roles, token }` |
 
 ## Variables de entorno
 

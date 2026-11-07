@@ -71,8 +71,31 @@
     @apply absolute top-0.5 right-0.5 flex h-4 w-4 min-w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-white;
     animation: badge-pop 0.25s ease-out;
   }
+  .navbar-login-btn {
+    @apply inline-flex h-10 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-white no-underline transition-colors hover:bg-blue-600;
+  }
+
+  /* Menú de usuario */
+  .user-menu {
+    @apply relative;
+  }
   .user-avatar {
-    @apply bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10;
+    @apply flex size-10 cursor-pointer items-center justify-center rounded-full border-none bg-primary text-sm font-bold uppercase text-white transition-opacity hover:opacity-90;
+  }
+  .user-menu-panel {
+    @apply absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-xl border border-border-light bg-card-light py-1 shadow-lg dark:border-border-dark dark:bg-card-dark;
+  }
+  .user-menu-header {
+    @apply border-b border-border-light px-4 py-3 dark:border-border-dark;
+  }
+  .user-menu-email {
+    @apply block truncate text-sm font-semibold;
+  }
+  .user-menu-role {
+    @apply block text-xs text-subtext-light dark:text-subtext-dark;
+  }
+  .user-menu-item {
+    @apply flex w-full cursor-pointer items-center gap-3 border-none bg-transparent px-4 py-2 text-left text-sm text-text-light no-underline transition-colors hover:bg-primary/10 dark:text-text-dark;
   }
 
   /* Footer Classes */
@@ -113,5 +136,22 @@
   }
   .router-loading-text {
     @apply text-sm text-subtext-light dark:text-subtext-dark;
+  }
+
+  /* Estados de página del Shell (404 y remoto caído) */
+  .shell-message {
+    @apply flex min-h-[60vh] flex-col items-center justify-center gap-3 p-6 text-center;
+  }
+  .shell-message-icon {
+    @apply text-6xl text-subtext-light dark:text-subtext-dark;
+  }
+  .shell-message-title {
+    @apply text-2xl font-bold;
+  }
+  .shell-message-text {
+    @apply text-subtext-light dark:text-subtext-dark;
+  }
+  .shell-message-action {
+    @apply mt-2 inline-flex cursor-pointer items-center rounded-lg border-none bg-primary px-4 py-2 text-sm font-semibold text-white no-underline transition-colors hover:bg-blue-600;
   }
 }

@@ -3,6 +3,7 @@ import { useProductDetail } from '../hooks/useProductDetail'
 import CatalogEmptyState from '../components/CatalogEmptyState'
 import { emit, CART_ADD_ITEM } from 'shellApp/eventBus'
 import { getSession } from 'authApp/authService'
+import { getAvailability } from '../utils/availability'
 
 /**
  * Componente ProductDetailPage.
@@ -46,6 +47,7 @@ function ProductDetailPage() {
     style: 'currency',
     currency: 'USD',
   }).format(product.price)
+  const { purchasable, label } = getAvailability(product)
 
   return (
     <div className="product-detail-page">
@@ -64,13 +66,13 @@ function ProductDetailPage() {
         </div>
 
         <div className="product-detail-info">
-          <p className="product-detail-category">{product.category?.name || 'Uncategorized'}</p>
+          <p className="product-detail-category">{product.categoryName || 'Uncategorized'}</p>
           <h1 className="product-detail-title">{product.name}</h1>
           <p className="product-detail-price">{price}</p>
           
           <div className="product-detail-status-container">
-            <span className={`product-detail-status ${product.active ? 'product-detail-status-active' : 'product-detail-status-inactive'}`}>
-              {product.active ? 'In Stock' : 'Out of Stock'}
+            <span className={`product-detail-status ${purchasable ? 'product-detail-status-active' : 'product-detail-status-inactive'}`}>
+              {label}
             </span>
           </div>
 
@@ -80,12 +82,12 @@ function ProductDetailPage() {
           </div>
 
           <button
-            className={`product-detail-add-btn ${product.active ? 'product-detail-add-btn-active' : 'product-detail-add-btn-inactive'}`}
+            className={`product-detail-add-btn ${purchasable ? 'product-detail-add-btn-active' : 'product-detail-add-btn-inactive'}`}
             onClick={handleAddToCart}
-            disabled={!product.active}
+            disabled={!purchasable}
           >
             <span className="material-symbols-outlined">add_shopping_cart</span>
-            {product.active ? 'Agregar al carrito' : 'Sin stock'}
+            {purchasable ? 'Agregar al carrito' : 'No disponible'}
           </button>
         </div>
       </div>

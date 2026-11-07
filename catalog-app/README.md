@@ -8,7 +8,7 @@ vista de detalle con el botón "Agregar al carrito".
 | **Puerto** | `5002` |
 | **Rol en MF** | Remoto (también consume remotos) |
 | **Estado** | 🟢 Completa (ver [Roadmap, Fase 3](../Roadmap-Microfrontends.md)) |
-| **API** | [`docs/openapi/catalog.yaml`](../docs/openapi/catalog.yaml) |
+| **API** | Código del Catalog Service; difiere de [`docs/openapi/catalog.yaml`](../docs/openapi/catalog.yaml) (ver [backlog §12](../docs/backlog-mvp.md)) |
 
 ## Rutas
 
@@ -16,8 +16,17 @@ El shell la monta en `/` y como ruta por defecto.
 
 | Ruta | Página | Endpoints |
 |---|---|---|
-| `/` | `CatalogPage` | `GET /categories`, `GET /products?categoryId&active` |
-| `/products/:id` | `ProductDetailPage` | `GET /products/{id}` |
+| `/` | `CatalogPage` | `GET /categories`, `GET /products?categoryId` |
+| `/products/:id` | `ProductDetailPage` | `GET /products/{id}`, `GET /categories` |
+
+El backend devuelve `{ id, name, description, price, stock, categoryId, active }`: el nombre de la categoría se
+resuelve con `GET /categories` (`withCategoryNames`). La API no filtra por `active`, así que "In Stock Only"
+se aplica en el cliente. Disponibilidad (`utils/availability.js`): **In Stock** si está habilitado y tiene
+stock, **Out of Stock** si está habilitado sin stock, **Unavailable** si está deshabilitado (regla 3.2). Solo
+el primero permite agregar al carrito.
+
+La búsqueda llega por la URL (`/?q=...`, la escribe el navbar del shell) y filtra por nombre en el cliente.
+CatalogApp recibe la prop `notFound`: el shell le pasa su 404 para las rutas que ninguna app reconoce.
 
 La paginación y el filtro por rango de precio son solo visuales: la API no los soporta (ver
 [backlog §12](../docs/backlog-mvp.md)).

@@ -8,19 +8,19 @@
 > OpenAPI de `docs/openapi/`.
 >
 > El [Roadmap](../Roadmap-Microfrontends.md) define *qué* se entrega por fase; este backlog es el desglose
-> técnico. Última sincronización con el código: 2026-11-03.
+> técnico. Última sincronización con el código: 2026-11-04.
 
 ## Diagnóstico rápido
 
 | App | Estado real |
 |---|---|
 | **Build** | `turbo run build` compila las 6 apps (corregido en PR #12: `loadEnv` en `vite.config.js`, `lazy`/`Suspense` desde `react`, `packageManager` en la raíz). |
-| **Shell** | Routing + eventBus + navbar funcionales. `ProtectedRoute` en `/cart`, `/orders/*` y `/admin/*`. Falta sesión en el navbar, 404 y `ErrorBoundary` en las rutas. |
+| **Shell** | Routing, eventBus, `ProtectedRoute`, sesión en el navbar, buscador, 404 y aviso si un remoto no carga. Falta el UI Kit (§7). |
 | **Auth** | Login/Register + JWT decode completos. El rol se lee del claim `roles` (array) que firma el backend. |
-| **Catalog** | Listado, filtro por categoría y detalle conectados a la API real. Paginación y rango de precio son solo visuales. |
+| **Catalog** | Listado, filtro por categoría y detalle con el `ProductResponse` real del backend (`categoryId`, `stock`). Disponibilidad = habilitado y con stock. Paginación y rango de precio son solo visuales. |
 | **Cart** | Conectada al Cart Service real (verificada contra un mock de `cart.yaml`). `CartSync` procesa `CART_ADD_ITEM` desde cualquier página y el badge muestra el total real. |
 | **Orders** | Checkout, pago simulado, historial y detalle (con cancelación) conectados a Order y Payment Service. Verificado contra un mock; falta el backend real (CORS). |
-| **Admin** | **Solo un placeholder decorativo**, cero lógica. |
+| **Admin** | Resumen, CRUD de productos y categorías, pedidos globales y usuarios/roles. Verificado contra un mock con las formas del código del backend. |
 | **Testing** | **Inexistente** — ni Vitest/Jest ni Testing Library ni Playwright/Cypress en ningún `package.json`. |
 | **CI/CD** | No existe carpeta `.github/`. |
 | **Vercel** | Remotes ya parametrizados por entorno; no existe `vercel.json` ni proyectos creados. Vercel es el **único** destino de despliegue (se descartó Docker + NGINX). |
@@ -54,36 +54,32 @@ monorepo en los 6 `vite.config.js`), con fallback a `http://localhost:500X`.
       `shellApp/eventBus`). Además, en `npm run dev:all` el shell corre con `vite` en modo dev, que no genera
       `remoteEntry.js`, por lo que `shellApp/eventBus` no está disponible para catalog. Opciones: mover el
       `eventBus` a un paquete de workspace, o usar `dev:mf` para el shell.
-- [ ] Añadir manejo de error cuando un remoto no carga (`remoteEntry.js` caído/timeout) en el
-      `AppRouter.jsx` del shell — hoy un fallo de red revienta el `Suspense` sin fallback de error (falta
-      un `ErrorBoundary`).
+- [x] Manejo de error cuando un remoto no carga (`remoteEntry.js` caído): `RemoteBoundary` en `AppRouter.jsx`
+      (§2).
 
 ---
 
 ## 2. Shell App
 
-- [ ] Implementar **estado global de sesión** en el shell (hoy `TopNavBar.jsx` no sabe si hay usuario
-      logueado — muestra siempre el mismo avatar hardcodeado). Consumir `authApp/useAuth`
-      (`useAuthSession`) desde el shell.
-- [ ] Mostrar condicionalmente en el navbar: botón "Iniciar sesión" vs. avatar + menú de usuario + "Cerrar
-      sesión", según sesión activa.
-- [ ] Mostrar enlace a `/admin` en el navbar solo si `role` es `ADMIN` o `SUPER_ADMIN`.
+- [x] **Sesión en el navbar**: `TopNavBar` usa `useAuthSession` de `authApp/useAuth`. Sin sesión muestra
+      "Iniciar sesión"; con sesión, avatar con la inicial del email y `UserMenu` (email, rol, "Mis pedidos",
+      panel de administración solo para `ADMIN`/`SUPER_ADMIN` y "Cerrar sesión", que recarga en `/`).
 - [x] Implementar **rutas protegidas** (`shell/src/app/routes/ProtectedRoute.jsx`) en `AppRouter.jsx` para
       `/cart/*`, `/orders/*` y `/admin/*` (este último exige `ADMIN` o `SUPER_ADMIN`). Sin sesión redirige a
       `/login` con `state.from`.
-      Nota: `ProtectedRoute` importa `authApp/useAuth` de forma estática, así que si `auth-app` no carga, el
-      shell entero falla. Aceptable mientras auth sea obligatorio; revisar junto con el `ErrorBoundary`.
-- [~] Añadir un `ErrorBoundary` global alrededor de `<Suspense>` en `shell/src/app/routes/AppRouter.jsx`
-      para capturar fallos de carga de remotos. Ya existe `RemoteErrorBoundary` (usado para `CartSync` en
-      `MainLayout`); falta envolver las rutas con un fallback visible.
-- [ ] Implementar página **404** para rutas no reconocidas (hoy `path="/*"` cae siempre en `CatalogApp`).
-- [ ] Limpiar código muerto: `shell/src/App.jsx` no se usa (el `main.jsx` monta `AppRouter` directamente) —
-      eliminarlo o documentarlo.
-- [ ] Implementar buscador del navbar (input `search-input` es decorativo, sin `onChange`/navegación).
-- [ ] Completar enlaces `Categories` / `About Us` del navbar, hoy son placeholders sin ruta real.
-- [ ] Interceptor global de errores HTTP (401/403/404) — mencionado en el roadmap (Fase 7) y aún no
-      implementado: crear un wrapper `fetch` compartido (ver punto 7) que en 401 dispare `logout()` + emita
-      `AUTH_SESSION_CHANGE` + redirija a `/login`.
+      Nota: `ProtectedRoute` y `TopNavBar` importan `authApp/useAuth` de forma estática, así que si `auth-app`
+      no carga, el shell entero falla. Aceptable mientras auth sea obligatorio.
+- [x] `ErrorBoundary` en las rutas: `RemoteBoundary` en `AppRouter.jsx` (Suspense + `RemoteErrorBoundary`) muestra
+      "Esta sección no está disponible" con "Reintentar"; navbar y footer siguen funcionando y cambiar de
+      sección reinicia el boundary.
+- [x] Página **404**: el shell le pasa `NotFoundPage` a Catalog App (`notFound`), porque es quien resuelve
+      `/` y `/products/:id` bajo el catch-all.
+- [x] Código muerto eliminado: `shell/src/App.jsx`.
+- [x] Buscador del navbar: publica `/?q=...` y Catalog App filtra por nombre en el cliente.
+- [x] Enlaces `Categories` / `About Us` eliminados del navbar: no tenían página (las categorías ya están en
+      los filtros del catálogo).
+- [x] 401 con sesión: `parseResponse` de Cart, Orders y Admin llama a `logout()`; `ProtectedRoute` lleva a `/login`
+      conservando `state.from`. El wrapper común queda en §7 (`httpClient.js`).
 
 ---
 
@@ -95,7 +91,8 @@ monorepo en los 6 `vite.config.js`), con fallback a `http://localhost:500X`.
       forma consistente con el `Alert.jsx` ya creado.
 - [ ] Añadir **expiración proactiva de sesión**: hoy `isTokenExpired` solo se verifica reactivamente al
       leer sesión (`auth-app/src/services/authService.js`); falta expulsar al usuario automáticamente
-      cuando el token expira mientras navega (con un `setTimeout` basado en `exp`, o interceptor 401).
+      cuando el token expira mientras navega (con un `setTimeout` basado en `exp`). Un 401 del backend ya
+      cierra la sesión (§2).
 - [x] Redirección post-login: `LoginPage` vuelve a `state.from` (lo guarda `ProtectedRoute`) o a `/`.
       Pendiente menor: catalog redirige a `/login` sin `state.from` al agregar al carrito sin sesión.
 - [x] Rol leído del claim real: Auth Service firma `roles` (array), no `role`. `getRole()` devolvía siempre
@@ -116,7 +113,7 @@ contra el backend real.**
       `fetch` + `parseResponse`. Como la API no documenta el cuerpo de las escrituras, tras cada acción se
       vuelve a pedir `GET /cart`.
 - [x] Header `Authorization: Bearer <token>` en todas las llamadas (`authApp/authService.getToken()`). Un 401
-      muestra "Tu sesión expiró"; el cierre de sesión automático queda para el interceptor global (§2).
+      cierra la sesión y el shell redirige a `/login` (§2).
 - [x] **`CART_ADD_ITEM` procesado**: `cart-app` expone `cartApp/CartSync`, que el shell monta en
       `MainLayout`. Escucha el evento en cualquier página, llama a `POST /cart/items` y muestra un aviso si
       falla. Usa constantes propias sobre `window` (`src/services/cartEvents.js`) en lugar de importar
@@ -155,30 +152,38 @@ cancelar, historial, carrito vacío). **Falta probar contra el backend real** (v
       `status === 'CREATED'` (regla 4.3); cancelar pide confirmación.
 - [x] Subrutas internas con `<Routes>` en `OrdersApp.jsx`; protegidas por `ProtectedRoute` en el shell.
 - [x] `authApp` declarado como remote en `orders-app/vite.config.js` (con `loadEnv`).
-- [x] Acceso desde el navbar del shell (icono "Mis pedidos").
+- [x] Acceso desde el menú de usuario del navbar ("Mis pedidos").
 - [ ] `OrderResponse` no incluye `address`, así que el detalle no muestra la dirección de envío (§12).
 - [ ] Nombres de producto: igual que en el carrito, se completan con `GET /products/{id}` (§12).
 
 ---
 
-## 6. Admin App — no implementado (Fase 6 completa)
+## 6. Admin App
 
-Hoy `admin-app/src/AdminApp.jsx` es 100% decorativo.
+Implementada con la arquitectura de las demás apps (`pages/`, `hooks/`, `services/`, `components/`).
+Los contratos se tomaron del **código** del backend, no de los yaml (ver §12). Verificada en el navegador
+contra un mock con esas formas, como `ADMIN` y como `SUPER_ADMIN`. **Falta probar contra el backend real.**
 
-- [ ] Layout admin: `SideMenu` + `Dashboard` propio del microfrontend.
-- [ ] **Guard de rol** (`ADMIN`/`SUPER_ADMIN`) usando `authApp/useAuth` — redirigir a `/` (o 403) si el rol
-      no alcanza. Esta es una validación de UI únicamente (regla 7: "el frontend no sustituye las
-      validaciones de backend"), pero es requisito del roadmap.
-- [ ] CRUD de Categorías: listado, crear, editar, eliminar (`docs/openapi/catalog.yaml` →
-      `POST/PUT/DELETE /categories/{id}`).
-- [ ] CRUD de Productos: listado, crear, editar, eliminar (`POST/PUT/DELETE /products/{id}`).
-- [ ] Vista global de pedidos (`GET /orders` sin filtro de usuario, visible solo para ADMIN/SUPER_ADMIN —
-      regla 6.1).
-- [ ] Gestión de usuarios (**solo SUPER_ADMIN**, regla 1.3/6.2): listado `GET /users`, alta `POST /users`,
-      cambio de rol `PUT /users/{id}/role`. Ocultar esta sección completa si `role !== 'SUPER_ADMIN'`,
-      incluso para ADMIN.
-- [ ] Declarar `authApp` como remote en `admin-app/vite.config.js`.
-- [ ] Formularios con validación (precio > 0, campos requeridos, etc.) antes de llamar a la API.
+- [x] Layout propio (`AdminLayout`: menú lateral + `Outlet`) y subrutas `/admin`, `/admin/products`,
+      `/admin/categories`, `/admin/orders`, `/admin/users`.
+- [x] Guard de rol: lo hace el `ProtectedRoute` del shell con `ADMIN_ROLES` (ahora en
+      `shell/src/app/routes/roles.js`). Si la sesión cambia a `CLIENT`, se sale del panel al instante.
+      Validación solo de UI (regla 7).
+- [x] **Resumen**: productos y categorías activos, pedidos por estado, ingresos de pedidos pagados y
+      productos activos con stock bajo (≤ 5).
+- [x] **Productos**: listado (activos e inactivos) con búsqueda, alta y edición (`POST`/`PUT /products`),
+      desactivar (`DELETE`, borrado lógico) y reactivar (`PUT` con `active: true`).
+- [x] **Categorías**: alta, renombrar (`PUT`) y eliminar (`DELETE`, borrado lógico). Eliminar se deshabilita
+      si la categoría tiene productos **activos** (el backend responde `409`). La API no permite reactivar una
+      categoría.
+- [x] **Pedidos globales** (`GET /orders` con rol admin, regla 6.1): filtro por estado, email del cliente
+      (vía `GET /admin/users`), ítems desplegables y cancelar los `CREATED` (`POST /orders/{id}/cancel`).
+- [x] **Usuarios**: `ADMIN` y `SUPER_ADMIN` ven el listado (`GET /admin/users`); solo `SUPER_ADMIN` cambia el
+      rol entre `CLIENT` y `ADMIN` (`POST /admin/users/{id}/role?role=`). Un `SUPER_ADMIN` no es modificable.
+- [x] `authApp` declarado como remote en `admin-app/vite.config.js` (con `loadEnv`).
+- [x] Validación de formularios antes de llamar a la API (`utils/validation.js`): nombre y descripción
+      obligatorios, precio > 0, stock entero ≥ 0, categoría requerida, nombre de categoría único.
+- [x] Acceso desde el menú de usuario del navbar (solo para `ADMIN`/`SUPER_ADMIN`).
 
 ---
 
@@ -345,17 +350,23 @@ son propiedad del backend: se deben acordar allí y luego reflejar aquí.
 - [ ] `OrderResponse` no incluye `address`: el detalle de pedido no puede mostrar la dirección de envío.
 - [~] Claims del JWT: el backend firma `sub` (UUID), `email`, `roles` (array) y `exp`. El frontend ya lee
       `roles`; falta documentarlos en `auth.yaml`.
-- [ ] **Rutas de usuarios (Fase 6)**: el código del Auth Service expone `GET /admin/users` y
-      `POST /admin/users/{id}/role?role=ADMIN|CLIENT`, pero `auth.yaml` documenta `GET /users` y
-      `PUT /users/{id}/role`. `POST /users` ya no existe. Confirmar cuál es el contrato antes de Admin App.
+- [~] **Rutas de usuarios**: el código del Auth Service expone `GET /admin/users` (devuelve
+      `{ id, email, roles, enabled }`) y `POST /admin/users/{id}/role?role=ADMIN|CLIENT`; `auth.yaml` documenta
+      `GET /users` y `PUT /users/{id}/role`. Admin App usa las rutas del código. Pedir que se corrija el yaml.
+- [~] **`ProductResponse` real ≠ `catalog.yaml`**: el backend devuelve
+      `{ id, name, description, price, stock, categoryId, active }` (sin objeto `category`) y `GET /products`
+      filtra por `categoryId` o `name`, no por `active`. Catalog, Cart y Admin App ya usan la forma real: el
+      nombre de la categoría se resuelve con `GET /categories` y "In Stock Only" se filtra en el cliente.
+      Falta que el backend actualice el yaml.
 - [ ] `CartItem` (`cart.yaml`) solo tiene `productId`, `quantity` y `price`; la UI del carrito muestra nombre
       e imagen. Decidir si el Cart Service enriquece la respuesta o si el frontend consulta el catálogo.
 - [ ] `ProductResponse` no tiene campo de imagen y `GET /products` no soporta paginación, pero la UI muestra
       ambas cosas.
 - [x] **Decisión de negocio** (resuelta por el backend): `ADMIN` y `SUPER_ADMIN` listan usuarios; solo
       `SUPER_ADMIN` cambia roles, y nadie puede asignar `SUPER_ADMIN` (regla 6.2).
-- [ ] El campo `active` del producto significa "habilitado" (regla 3.2), pero la UI lo muestra como
-      "In Stock". Ajustar el texto o agregar stock al contrato.
+- [x] Disponibilidad en Catalog App: `active` es "habilitado" (regla 3.2) y `stock` las unidades. Se muestra
+      "In Stock" (habilitado y con stock), "Out of Stock" (habilitado sin stock) o "Unavailable"
+      (deshabilitado); solo el primero deja agregar al carrito (`catalog-app/src/utils/availability.js`).
 
 ---
 
@@ -365,11 +376,13 @@ son propiedad del backend: se deben acordar allí y luego reflejar aquí.
    (Prettier/Husky, TypeScript).
 2. ~~**Cerrar el flujo de compra** (§4, §5)~~ — catálogo → carrito → checkout → pago funciona contra el mock.
    Falta probarlo con el backend real cuando su CORS admita el shell (§12).
-3. **Admin App** (§6) — desbloquea el segundo actor del sistema.
-4. **UI Kit + manejo de sesión en shell** (§2, §7) — antes de testing, para no testear componentes que se
-   van a refactorizar.
+3. ~~**Admin App** (§6)~~ — panel completo contra el mock. Catalog App ya está alineada con el
+   `ProductResponse` real (§12).
+4. **UI Kit** (§7) — antes de testing, para no testear componentes que se van a refactorizar. El manejo de
+   sesión en el shell (§2) ya está resuelto.
 5. **Testing** (§8) — unitario primero, E2E al final una vez el journey esté estable.
 6. **CI/CD + Vercel** (§1, §9, §10) — en paralelo con testing, pero el `vercel.json`/variables de entorno
    solo tienen sentido una vez las apps funcionan end-to-end localmente.
 
-Las rutas de usuarios de §12 conviene acordarlas con backend **antes** de empezar Admin App (§6).
+Las discrepancias de §12 entre el código del backend y sus yaml conviene corregirlas en el backend para que
+`docs/openapi/` vuelva a ser una fuente confiable.
